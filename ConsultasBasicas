@@ -1,0 +1,7 @@
+1- SELECT * FROM ciudades;
+2- SELECT nombre FROM provincias;
+3- 
+4- SELECT * FROM productos ORDER BY precio DESC LIMIT 3;
+5- SELECT * FROM ciudades ORDER BY poblacion;
+6- SELECT * FROM provincias WHERE poblacion > 100000 AND poblacion < 1000000;
+7- 
