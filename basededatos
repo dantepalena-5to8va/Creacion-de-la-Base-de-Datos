@@ -1,0 +1,42 @@
+DROP DATABASE IF EXIST pais;
+CREATE TABLE pais;
+
+CREATE TABLE provincias(id INT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(20), habitantes INT);
+
+CREATE TABLE ciudades(id INT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(20), habitantes INT, provincia_id INT, FOREING KEY (provincia_id) REFERENCES provincias(id));
+
+CREATE TABLE clientes(id INT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(20), apellido VARCHAR(20), ciudad_id INT, FOREING KEY (ciudad_id) REFERENCES ciudades(id));
+
+CREATE TABLE productos(id INT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(20), stock INT);
+
+CREATE TABLE compras(id INT PRIMARY KEY AUTO_INCREMENT, total DECIMAL, producto_id INT, FOREING KEY (producto_id) REFERENCES productos(id));
+
+INSERT INTO provincias(id, nombre, habitantes) VALUES(1, "Cordoba", 2300000);
+INSERT INTO provincias(id, nombre, habitantes) VALUES(2, "Kosobo", 5000000);
+INSERT INTO provincias(id, nombre, habitantes) VALUES(3, "India", 900000);
+INSERT INTO provincias(id, nombre, habitantes) VALUES(4, "Alaska", 300000);
+INSERT INTO provincias(id, nombre, habitantes) VALUES(5, "Rio-Negro", 2300000);
+
+INSERT INTO ciudades(id, nombre, habitantes) VALUES(0, "Pelotas", 213000);
+INSERT INTO ciudades(id, nombre, habitantes) VALUES(6, "Bombas", 12300000);
+INSERT INTO ciudades(id, nombre, habitantes) VALUES(9, "Ranchos", 29900000);
+INSERT INTO ciudades(id, nombre, habitantes) VALUES(8, "Fortaleza", 10200000);
+INSERT INTO ciudades(id, nombre, habitantes) VALUES(10, "Chile", 23020000);
+
+INSERT INTO clientes(id, nombre, apellido) VALUES(12, "Marcos", "Lupini");
+INSERT INTO clientes(id, nombre, apellido) VALUES(16, "Pablo", "Narcos");
+INSERT INTO clientes(id, nombre, apellido) VALUES(14, "Josue", "Pueblas");
+INSERT INTO clientes(id, nombre, apellido) VALUES(19, "Pepe", "Paos");
+INSERT INTO clientes(id, nombre, apellido) VALUES(18, "Juan", "Franco");
+
+INSERT INTO productos(id, nombre, stock) VALUES(100, "Manzana", 20000);
+INSERT INTO productos(id, nombre, stock) VALUES(101, "Pilas", 20000);
+INSERT INTO productos(id, nombre, stock) VALUES(102, "Anana", 34000);
+INSERT INTO productos(id, nombre, stock) VALUES(103, "Alfajor", 501000);
+INSERT INTO productos(id, nombre, stock) VALUES(104, "Agua", 120000);
+
+INSERT INTO compras(id, total) VALUES(500, 299.99);
+INSERT INTO compras(id, total) VALUES(599, 1999.99);
+INSERT INTO compras(id, total) VALUES(499, 9999.99);
+INSERT INTO compras(id, total) VALUES(502, 8999.99);
+INSERT INTO compras(id, total) VALUES(501, 999.99);
