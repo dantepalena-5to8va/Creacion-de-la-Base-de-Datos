@@ -1,0 +1,27 @@
+1 - SELECT * FROM Clientes WHERE localidad IN (SELECT id FROM Ciudades WHERE nombre = "Buenos_Aires")
+
+2 - SELECT * FROM Productos WHERE precio > (SELECT AVG(precio) FROM Productos)
+
+3 - SELECT * FROM Clientes WHERE id IN(SELECT cliente FROM Compras WHERE producto = 5)
+
+4 - SELECT * FROM Provincias WHERE poblacion > (SELECT AVG(poblacion) FROM Provincias)
+
+5 - SELECT * FROM Productos WHERE precio = (SELECT precio FROM Productos WHERE descripcion = "birome azul")
+
+6 - SELECT * FROM Ciudades WHERE provincia = (SELECT id FROM Provincias WHERE nombre = "Buenos Aires")
+
+7 - SELECT * FROM Clientes WHERE id NOT IN(SELECT cliente FROM Compras)
+
+8 - SELECT * FROM Clientes WHERE apellido = (SELECT apellido FROM Clientes GROUP BY apellido DESC LIMIT 1)
+
+9 - SELECT * FROM Clientes WHERE localidad IN(SELECT id FROM Ciudades WHERE id IN(SELECT localidad FROM Clientes WHERE nombre = "Juan" AND apellido = "Perez"))
+
+10 - SELECT * FROM Productos WHERE stock < (SELECT AVG(stock) FROM Productos)
+
+11 - SELECT * FROM Ciudades WHERE poblacion > (SELECT poblacion FROM Ciudades WHERE nombre = "Rosario")
+
+12 - SELECT * FROM Clientes WHERE id IN(SELECT cliente FROM Compras)
+
+13 - SELECT * FROM Productos WHERE id NOT IN(SELECT producto FROM Compras)
+
+14 - SELECT * FROM Provincias WHERE id IN(SELECT id FROM Provincias WHERE region = "Pampa")
