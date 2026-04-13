@@ -1,0 +1,26 @@
+1 - CREATE VIEW nombre_cliente AS SELECT nombre, apellido FROM Clientes
+
+2 - INSERT INTO nombre_cliente(nombre, apellido) VALUES ("Dante", "Palena")
+
+3 - DROP VIEW IF EXISTS nombre_cliente
+
+4 - CREATE VIEW productos_BIC AS SELECT * FROM productos WHERE marca = "BIC"
+
+5 - CREATE VIEW porteños AS SELECT * FROM Clientes cl JOIN Ciudades ci ON cl.localidad = ci.id JOIN Provincias p ON ci.provincia = p.id WHERE p.nombre  = "Buenos Aires" OR p.nombre = "Ciudad Autonoma de Buenos Aires"
+
+6 - DELETE FROM porteños WHERE ciudades.nombre <> "Buenos Aires"
+
+7 - CREATE VIEW productos_caros AS SELECT * FROM Producto WHERE precio > 100
+
+8 - CREATE VIEW clientes_ciudades AS SELECT * FROM Clientes RIGHT JOIN Ciudades ON Clientes.localidad = Ciudades.id
+
+9 - CREATE VIEW ciudades_provincias AS SELECT * FROM Ciudades RIGHT JOIN Provincias ON Clientes.provincia = Provincias.id
+
+10 - CREATE VIEW ultima_compra AS SELECT Clientes.*, Compras.fecha FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente ORDER BY Compras.fecha DESC LIMIT 1
+
+
+
+
+
+
+
