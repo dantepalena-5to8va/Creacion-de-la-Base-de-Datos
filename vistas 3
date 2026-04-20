@@ -1,0 +1,15 @@
+1 - SELECT Clientes.nombre, SUM(Productos.precio) AS total_gastado FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente JOIN Productos ON Compras.producto = Productos.id ORDER BY SUM(precio) DESC
+
+2 - CREATE VIEW clientes_premium AS SELECT * FROM Clientes WHERE (SELECT COUNT(id) FROM Compras) > (SELECT AVG(id) FROM Compras) GRUOP BY Clientes_id
+
+3 - CREATE VIEW producto_mas_vendido AS SELECT Productos.descripcion, SUM(Compras.cant) AS cantidad_comprada FROM Productos JOIN Compras ON Productos.id = Compras.producto ORDER BY SUM(Compras.cant) DESC
+
+4 - SELECT DISTINCT * FROM Clientes WHERE id IN(SELECT cliente FROM Compras WHERE producto IN(SELECT id FROM Productos))
+
+5 - SELECT * FROM Ciudades WHERE poblacion > AVG(poblacion)
+
+6 - 
+
+7 - | FALTA TERMINAR | SELECT * FROM Clientes WHERE id IN (SELECT cliente FROM Compras WHERE producto IN (SELECT id FROM Productos))
+
+8 - | FALTA TERMINAR | CREATE VIEW provincias_poblacion AS SELECT region, SUM(poblacion) AS poblacion_total, COUNT(nombre) AS cantidad_de_provincias, AVG(poblacion) AS poblacion_promedio FROM Productos WHERE 
