@@ -15,10 +15,10 @@ MAX(precio) AS precio,
 MIN(precio) AS mas_barato 
 FROM producto_no_stock
 
-7 - CREATE VIEW clientes_compra AS SELECT * FROM Clientes WHERE (SELECT COUNT(cliente) FROM Compras) = 1
+7 - CREATE VIEW clientes_compra AS SELECT * FROM Clientes WHERE (SELECT COUNT(id) FROM Compras) = 1 GRUOP BY Clientes_id
 
-8 - 
+8 - (Correccion) ALTER VIEW cliente_compra AS SELECT Clientes.*, Compras.cant FROM JOIN Compras ON Clientes.id = Compras.cliente  WHERE (SELECT COUNT(id) FROM Compras) = 1 GRUOP BY Clientes_id
 
-9 - 
+9 - (Correccion) ALTER VIEW cliente_compra AS SELECT Clientes.*, Compras.cant, SUM(Productos.precio) FROM JOIN Compras ON Clientes.id = Compras.cliente JOIN Productos ON Compras.producto = Productos.id WHERE (SELECT COUNT(id) FROM Compras) = 1 GRUOP BY Clientes_id
 
 10 - CREATE VIEW productos_no_comprados AS SELECT * FROM Productos WHERE id NOT IN(SELECT producto FROM Compras)
