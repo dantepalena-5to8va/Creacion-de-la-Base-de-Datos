@@ -8,8 +8,8 @@
 
 5 - SELECT * FROM Ciudades WHERE poblacion > AVG(poblacion)
 
-6 - 
+6 - CREATE VIEW seguridad AS SELECT Compras.*, Clientes.nombre FROM Compras JOIN Clientes ON Compras.cliente = Clientes.id
 
-7 - | FALTA TERMINAR | SELECT * FROM Clientes WHERE id IN (SELECT cliente FROM Compras WHERE producto IN (SELECT id FROM Productos))
+7 - SELECT * FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente JOIN Productos ON Compras.producto = Productos.id WHERE COUNT(DISTINCT marca FROM Productos) > 2
 
-8 - | FALTA TERMINAR | CREATE VIEW provincias_poblacion AS SELECT region, SUM(poblacion) AS poblacion_total, COUNT(nombre) AS cantidad_de_provincias, AVG(poblacion) AS poblacion_promedio FROM Productos WHERE 
+8 - CREATE VIEW provincias_poblacion AS SELECT DISTINCT region, SUM(poblacion) AS poblacion_total, COUNT(DISTINCT id) AS cantidad_de_provincias, AVG(poblacion) AS poblacion_promedio FROM Provincias GRUOP BY region 
