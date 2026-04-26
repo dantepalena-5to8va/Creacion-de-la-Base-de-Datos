@@ -1,7 +1,16 @@
-1- SELECT * FROM ciudades;
-2- SELECT nombre FROM provincias;
-3- 
-4- SELECT * FROM productos ORDER BY precio DESC LIMIT 3;
-5- SELECT * FROM ciudades ORDER BY poblacion;
-6- SELECT * FROM provincias WHERE poblacion > 100000 AND poblacion < 1000000;
-7- 
+1 - SELECT * FROM ciudades;
+2 - SELECT nombre FROM provincias;
+3 - SELECT nombre, apellido FROM Clientes WHERE COUNT(apellido) = (SELECT COUNT(apellido) FROM Clientes) GROUP BY apellido
+4 - SELECT * FROM productos ORDER BY precio DESC LIMIT 3;
+5 - SELECT * FROM ciudades ORDER BY poblacion;
+6 - SELECT * FROM provincias WHERE poblacion > 100000 AND poblacion < 1000000;
+7 - SELECT Clientes.nombre, Ciudades.nombre FROM Clientes JOIN Ciudades ON Clientes.localidad = Ciudades.id
+8 - SELECT Ciudades.nombre, Provincias.nombre FROM Ciudades JOIN Provincias ON Ciudades.provincia = Provincias.id
+9 - SELECT SUM(stock) FROM Productos
+10 - SELECT AVG(precio) FROM Productos
+11 - SELECT COUNT(id) FROM Clientes
+12 - SELECT nombre FROM Ciudades ORDER BY poblacion DESC LIMIT 3
+13 - SELECT descripcion FROM Productos WHERE stock < 10
+14 - SELECT nombre, (SELECT (cant*Productos.precio) FROM Compras WHERE producto IN(SELECT id FROM Productos)) AS total_gastado FROM Clientes
+15 - SELECT * FROM Compras ORDER BY fecha DESC LIMIT 1
+
