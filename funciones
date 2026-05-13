@@ -1,0 +1,157 @@
+1 - función precio_con_iva(precio)
+DELIMITER //
+CREATE FUNCTION precio_con_iva(precio DECIMAL(10,2))
+RETURN DECIMAL(10,2)
+
+BEGIN
+
+RETURN precio * 1.21;
+
+END //
+DELIMITER;
+
+
+2 - función doble_stock(stock)
+DELIMITER //
+CREATE FUNCTION doble_stock(stock INT)
+RETURN INT
+
+BEGIN
+
+RETURN stock * 2;
+
+END //
+DELIMITER;
+
+
+3 - función nombre_completo(nombre, apellido)
+DELIMITER //
+CREATE FUNCTION nombre_completo(nombre VARCHAR(20), apellido VARCHAR(20))
+RETURN VARCHAR(50)
+
+BEGIN
+
+RETURN apellido + ", " + nombre;
+O
+RETURN apellido, nombre;
+
+END //
+DELIMITER;
+
+
+4 -  función estado_stock(stock)
+DELIMITER //
+CREATE FUNCTION estado_stock(stock INT)
+RETUNR VARCHAR(20)
+
+BEGIN
+
+IF(stock == 0) THEN RETURN 'Sin stock';
+ELSE
+IF(stock < 20) THEN RETURN 'Bajo stock';
+ELSE
+IF(stock > 20) THEN RETURN 'Disponible';
+END IF;
+
+END //
+DELIMITER;
+
+
+5 - función clasificar_precio(precio)
+DELIMITER //
+CREATE FUNCTION clasificar_precio(precio DECIMAL(10,2))
+RETUNR VARCHAR(20)
+
+BEGIN
+
+IF(precio < 100) THEN RETURN 'Barato';
+ELSE
+IF(precio BETWEEN 100 AND 500) THEN RETURN 'Medio';
+ELSE
+IF(precio > 500) THEN RETURN 'Caro';
+END IF;
+
+END //
+DELIMITER;
+
+
+6 - función aplicar_descuento(precio, porcentaje)
+DELIMITER //
+CREATE FUNCTION aplicar_descuento(precio DECIMAL(10,2), porcentaje DECIMAL(3,2))
+RETURN DECIMAL(10,2)
+
+BEGIN
+
+RETURN precio - (precio * porcentaje);
+
+END //
+DELIMITER;
+
+
+7 - función obtener_precio(id_producto)
+DELIMITER //
+CREATE FUNCTION obtener_precio(id_producto INT)
+RETURN DECIMAL(10,2)
+
+BEGIN
+
+DECLARE precio_producto DECIMAL(10,2);
+
+SELECT precio INTO precio_producto FROM Productos WHERE id = id_producto;
+
+RETURN precio_producto;
+
+END //
+DELIMITER;
+
+
+8 - función obtener_stock(id_producto)
+DELIMITER //
+CREATE FUNCTION obtener_stock(id_producto INT)
+RETURN INT
+
+BEGIN
+
+DECLARE stock_producto INT;
+
+SELECT stock INTO stock_producto FROM Productos WHERE id = id_producto;
+
+RETURN stock_producto;
+
+END //
+DELIMITER;
+
+
+9 - función nombre_cliente(id_cliente)
+DELIMITER //
+CREATE FUNCTION nombre_cliente(id_cliente INT)
+RETURN VARCHAR(50)
+
+BEGIN
+
+DECLARE nombre_cli;
+DECLARE apellido_cli;
+
+SELECT nombre INTO nombre_cli, apellido INTO apellido_cli FROM Clientes WHERE id = id_cliente;
+
+RETURN apellido_cli, nombre_cli;
+
+END //
+DELIMITER;
+
+
+10 -  función marca_producto(id_producto)
+DELIMITER //
+CREATE FUNCTION marca_producto(id_producto INT)
+RETURN VARCHAR(30)
+
+BEGIN
+
+DECLARE marca_pro;
+
+SELECT marca INTO marca_pro FROM Productos WHERE id = id_producto;
+
+RETURN marca_pro
+
+END //
+DELIMITER;
