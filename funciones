@@ -31,8 +31,6 @@ RETURN VARCHAR(50)
 
 BEGIN
 
-RETURN apellido + ", " + nombre;
-O
 RETURN apellido, nombre;
 
 END //
