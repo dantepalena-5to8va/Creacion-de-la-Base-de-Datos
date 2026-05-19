@@ -1,0 +1,76 @@
+1 -
+DELIMITER //
+CREATE FUNCTION cantidad_total_vendida (id_producto INT)
+RETURNS INT
+
+BEGIN
+DECLARE cantidad_vendida INT;
+SELECT SUM(cant) INTO cantidad_vendida FROM Compras WHERE id_producto = producto;
+
+RETURN cantidad_vendida;
+
+END //
+DELIMITER ;
+
+2 - 
+DELIMITER //
+CREATE FUNCTION cantidad_compras_cliente(id_cliente INT)
+RETURNS INT
+
+BEGIN
+
+DECLARE cantidad_compras INT;
+
+SELECT COUNT(id) INTO cantidad_compras FROM Compras WHERE cliente = id_cliente;
+
+END //
+DELIMITER;
+
+3 - 
+DELIMITER //
+CREATE FUNCTION ultima_compra(id_cliente INT)
+RETURNS DATE
+
+BEGIN
+
+DECLARE ultima_fecha DATE;
+SELECT fecha INTO ultima_fecha FROM Compras WHERE cliente = id_cliente ORDER BY fecha DESC LIMIT 1;
+
+RETURN ultima_fecha;
+
+END //
+DELIMITER;
+
+4 -
+DELIMITER //
+CREATE FUNCTION dias_ultima_compra(id_cliente INT)
+RETURNS INT
+
+BEGIN
+
+DECLARE fecha_ultima DATE
+SELECT fecha INTO fecha_ultima FROM Compras WHERE cliente = id_cliente ORDER BY fecha DESC LIMIT 1;
+
+RETURN DATEDIFF(fecha_ultima, NOW());
+
+END //
+DELIMITER;
+
+5 - 
+DELIMITER //
+CREATE FUNCTION total_gastado(id_cliente INT)
+RETURNS DECIMAL(10,2)
+
+BEGIN
+DECLARE total DECIMAL (10,2);
+SELECT SUM(Productos.precio) INTO total FROM Compras JOIN Producto ON Compras.producto = Productos.id WHERE cliente = id_cliente;
+
+RETURN total;
+
+END //
+DELIMITER ;
+
+
+
+
+
