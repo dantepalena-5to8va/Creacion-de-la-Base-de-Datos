@@ -63,14 +63,178 @@ RETURNS DECIMAL(10,2)
 
 BEGIN
 DECLARE total DECIMAL (10,2);
-SELECT SUM(Productos.precio) INTO total FROM Compras JOIN Producto ON Compras.producto = Productos.id WHERE cliente = id_cliente;
+SELECT SUM(Productos.precio) INTO total FROM Compras JOIN Producto ON Compras.producto = Productos.id WHERE Compras.cliente = id_cliente;
 
 RETURN total;
 
 END //
 DELIMITER ;
 
+6 -
+DELIMITER //
+CREATE FUNCTION cliente_premium(id_cliente INT)
+RETURNS VARCHAR(25)
 
+BEGIN
+
+DECLARE total DECIMAL (10,2);
+SELECT SUM(Productos.precio) INTO total FROM Compras JOIN Producto ON Compras.producto = Productos.id WHERE Compras.cliente = id_cliente;
+
+IF total > 5000 THEN 
+RETURN 'Premium';
+ELSE
+RETURN 'Normal';
+END IF;
+
+END //
+DELIMITER;
+
+7 -
+DELIMITER //
+CREATE FUNCTION provincia_cliente(id_cliente INT)
+RETURNS VARCHAR(25)
+
+BEGIN
+
+DECLARE provincia_ub VARCHAR(25);
+SELECT Provincias.nombre INTO provincia_ub FROM Clientes JOIN Ciudades ON Clientes.localidad = Ciudades.id JOIN Provincias ON Ciudades.provincia = Provincias.id WHERE id_cliente = Clientes.id;
+
+RETURN provincia_ub;
+
+END //
+DELIMITER;
+
+8 - 
+DELIMITER //
+CREATE FUNCTION region_cliente(id_cliente INT)
+RETURNS VARCHAR(25)
+
+BEGIN
+
+DECLARE region_ub VARCHAR(25);
+SELECT Provincias.region INTO region_ub FROM Clientes JOIN Ciudades ON Clientes.localidad = Ciudades.id JOIN Provincias ON Ciudades.provincia = Provincias.id WHERE id_cliente = Clientes.id;
+RETURN region_ub;
+
+END //
+DELIMITER;
+
+9 -
+CREATE FUNCTION clientes_por_provincia(id_provincia INT)
+RETURNS INT
+
+BEGIN
+
+DECLARE total_clientes INT;
+SELECT COUNT(Clientes.id) INTO total_cliente FROM Provincias JOIN Ciudades ON Provincias.id = Ciudades.provincia JOIN Clientes ON Ciudades.id = Clientes.localidad WHERE Provincias.id = id_provincia;
+
+RETURN total_clientes;
+
+END //
+DELIMITER;
+
+
+10 -
+DELIMITER //
+CREATE FUNCTION producto_mas_vendido()
+RETURNS VARCHAR(25)
+
+BEGIN
+
+DECLARE mas_vendido VARCHAR(25);
+SELECT Productos.descripcion INTO mas_vendido FROM Productos JOIN Compras ON Productos.id = Compras.producto GROUP BY SUM(Compras.cant) DESC LIMIT 1;
+
+RETURN mas_vendido;
+
+END //
+DELIMITER;
+
+
+11 -
+DELIMITER //
+CREATE FUNCTION producto_menos_vendido()
+RETURNS VARCHAR(25)
+
+BEGIN
+
+DECLARE menos_vendido VARCHAR(25);
+SELECT Productos.descripcion INTO menos_vendido FROM Productos JOIN Compras ON Productos.id = Compras.producto GROUP BY SUM(Compras.cant) ASC LIMIT 1;
+
+RETURN menos_vendido;
+
+END //
+DELIMITER;
+
+
+12 -
+DELIMITER //
+CREATE FUNCTION promedio_precios()
+RETURNS DECIMAL(10,2)
+
+BEGIN
+
+DECLARE promedio DECIMAL(10,2);
+SELECT AVG(precio) INTO promedio FROM Productos;
+
+RETURN promedio;
+
+END //
+DELIMITER;
+
+
+13 -
+DELIMITER //
+CREATE FUNCTION comparar_promedio(id_producto INT)
+RETURNS VARCHAR(25)
+
+BEGIN
+
+DECLARE precio_produ DECIMAL (10,2);
+SELECT precio INTO precio_produ FROM Productos WHERE id = id_productos;
+
+IF precio_produ > promedio_precios() THEN
+RETURN 'Arriba del promedio'
+ELSE
+RETURN 'Debajo del promedio'
+END IF;
+
+END //
+DELIMITER;
+
+14 -
+CREATE FUNCTION alerta_stock(id_producto INT)
+RETURNS VARCHAR(25)
+
+BEGIN
+
+DECLARE stock_prod INT
+SELECT stock INTO stock_prod FROM Productos WHERE id = id_producto;
+
+IF stock_prod == 0 THEN
+RETURN 'REPOSICION URGENTE'
+ELSE
+IF stock_prod < 20 THEN
+RETURN 'STOCK BAJO'
+ELSE
+RETURN 'OK :)'
+END IF;
+END IF;
+
+END //
+DELIMITER;
+
+15 -
+DELIMITER //
+CREATE FUNCTION cantidad_productos_cliente(id_cliente INT)
+RETURNS INT
+
+BEGIN
+DECLARE cantidad_vendida INT;
+SELECT SUM(Compras.cant) INTO cantidad_vendida FROM Clientes JOIN Compras ON Cliente.id = Compras.cliente WHERE id_cliente = Clientes.id;
+
+RETURN cantidad_vendida;
+
+END //
+DELIMITER ;
 
 
 
