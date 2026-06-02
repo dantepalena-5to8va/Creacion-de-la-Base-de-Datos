@@ -1,0 +1,117 @@
+1 - Agregar una provincia 
+CREATE PROCEDURE Agregar_Provincia AS
+@idprovincia INT
+@nombreprovincia VARCHAR(60)
+@capitalprovincia VARCHAR(60)
+@gobernadorprovincia VARCHAR60)
+@poblacionprovincia INT
+@superficieprovincia INT
+@autonomaprovincia DATE
+@regionprovincia VARCHAR(60)
+@partidoprovincia VARCHAR(60)
+
+
+BEGIN
+INSERT INTO (id, nombre, capital, gobernador, poblacion, superficie, autonoma_desde, region, partido) VALUE(@idprovincia, @nombreprovincia, @capitalprovincia, @gobernadoprovincia, @poblacionprovincia, @superficieprovincia, @autonomaprovincia, @regionprovincia, @partidoprovincia)
+
+END;
+
+EXEC Agregar_Provincia 1, "Córdoba", "Pepe", 1000000, 2030, 1890/02/01, "pampa", "politico";
+
+2 - Agregar una ciudad
+CREATE PROCEDURE Agregar_Ciudad AS
+@id INT
+@nombre VARCHAR(60)
+@provincia INT
+@poblacion INT
+@superficie INT
+@fundacion DATE
+@intendente VARCHAR(60)
+@altitud INT
+
+BEGIN
+INSERT INTO (id, nombre, provincia, poblacion, superficie, fundacion, intendente, altitud) VALUES(@id, @nombre, @provincia, @poblacion, @superficie, @fundacion, @intendente, @altitud)
+
+END;
+EXEC Agregar_Ciudad 1, "Rio", 2, 1000, 290, 2000/12/31, "Pepe", 122;
+
+3 - Agregar un cliente
+CREATE PROCEDURE Agregar_Cliente AS
+@id INT
+@nombre VARCHAR(60)
+@apellido VARCHAR(60)
+@tel VARCHAR(20)
+@calle VARCHAR(40)
+@altura INT
+@localidad INT
+
+BEGIN
+INSERT INTO (id, nombre, apellido, tel, calle, altura, localidad) VALUES(@id, @nombre, @apellido, @tel, @calle, @altura, @localidad);
+
+END;
+
+EXEC Agregar_Cliente 1, "Pepe", "Juan", "1392840203", "Nueva York", 121, 2;
+
+4 - Agregar un producto 
+CREATE PROCEDURE Agregar_Producto AS
+@id INT
+@descripcion VARCHAR(60)
+@marca VARCHAR(40)
+@precio DECIMAL(7,2)
+@stock INT
+
+BEGIN
+INSERT INTO (id, descripcion, marca, precio, stock) VALUES(@id, @descripcion, @marca, @precio, @stock);
+
+END;
+
+EXEC Agregar_Producto 1, "lapiz", "BIC", 200.40, 1200;
+
+5 - Actualizar el precio de un producto
+CREATE PROCEDURE Actualizar_precio AS
+@id_producto INT
+@precio_nuevo DECIMAL(7,2)
+
+BEGIN
+UPDATE Productos SET precio = @precio_nuevo WHERE id = @id_producto;
+
+END;
+
+6 - Actualizar el stock de un producto
+CREATE PROCEDURE Actualizar_stock AS
+@id_producto INT
+@stock_nuevo INT
+
+BEGIN
+UPDATE Productos SET stock = @stock_nuevo WHERE id = @id_producto;
+END;
+
+7 - Eliminar un cliente
+CREATE PROCEDURE Eliminar_cliente AS
+@id_cliente INT
+
+BEGIN
+DELETE * FROM Clientes WHERE id = @id_cliente
+END;
+
+8 - Mostrar todos los productos
+CREATE PROCEDURE Mostrar_productos AS
+BEGIN
+SELECT * FROM Productos
+END;
+
+9 - Buscar una ciudad por nombre
+CREATE PROCEDURE Buscar_ciudad AS
+@nombre_ciudad VARCHAR(60
+
+BEGIN
+SELECT * FROM Ciudades WHERE nombre = @nombre_ciudad
+END;
+
+10 - Mostrar las ciudades de una provincia 
+CREATE PROCEDURE Ciudades_provincia AS
+@nombre_provincia VARCHAR(60)
+
+BEGIN
+SELECT * FROM Ciudades WHERE localidad =(SELECT id FROM Provincias WHERE nombre = @nombre_provincia);
+END;
