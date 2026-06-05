@@ -1,0 +1,40 @@
+1 - Eliminar clientes que nunca realizaron compras.
+CREATE PROCEDURE Eliminar_cliente_noc AS
+
+BEGIN
+DELETE * FROM Clientes WHERE id NOT IN(SELECT cliente FROM Compras)
+END;
+
+2 - Mostrar todas las provincias de una región.
+CREATE PROCEDURE Provincias_region AS
+@region VARCHAR(60)
+
+BEGIN
+SELECT nombre FROM Provincias WHERE region = @region
+END;
+
+3 -  Cambiar el gobernador de una provincia.
+CREATE PROCEDURE Cambiar_gobernador AS
+@nombre VARCHAR(60)
+@nuevogobernador VARCHAR(60)
+
+BEGIN
+UPDATE Provincias SET gobernador = @nuevogobernador WHERE nombre = @nombre
+END;
+
+4 - Agregar un producto verificando que el precio sea positivo.
+CREATE PROCEDURE Agregar_producto_ver AS
+@id INT
+@descripcion VARCHAR(60)
+@marca VARCHAR(40)
+@precio DECIMAL(7,2)
+@stock INT
+
+BEGIN
+
+IF @precio > 0 THEN
+INSERT INTO Productos VALUES(@id, @descripcion, @marca, @precio, @stock)
+END;
+
+
+
