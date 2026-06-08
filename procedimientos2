@@ -45,5 +45,180 @@ BEGIN
 SELECT * FROM Compras WHERE fecha BETWEEN @fecha1 AND @fecha2
 END;
 
-6- 
+6 - Eliminar ciudades con menos de cierta población.
+CREATE PROCEDURE Eliminar_ciudad AS
+@cantpobla INT
+
+BEGIN
+DELETE * FROM Ciudades WHERE poblacion < @cantpobla
+END;
+
+7 - Aumentar el stock de todos los productos de una marca.
+CREATE PROCEDURE Aumentar_stock AS
+@nombremarca VARCHAR(40)
+
+BEGIN
+UPDATE Productos SET stock = stock + 1 WHERE marca = @nombremarca
+END;
+
+8 - Mostrar todos los productos de una marca.
+CREATE PROCEDURE Productos_marca AS
+@marca VARHAR(40)
+
+BEGIN
+SELECT * FROM Productos WHERE marca = @marca
+END;
+
+9 - Eliminar todos los productos sin stock.
+CREATE PROCEDURE Eliminar_productos AS
+
+BEGIN
+DELETE * FROM Productos WHERE stock = 0
+END;
+
+10 - Registrar una compra asignando automáticamente la fecha actual.
+CREATE PROCEDURE Registrar_compra_fechahoy AS
+@id INT
+@cliente INT
+@producto INT
+@cant INT
+
+BEGIN
+
+INSERT INTO Compras(id, fecha, cliente, producto, cant) VALUES(@id, CURDATE(), @cliente, @producto, @cant)
+END;
+
+11 - Mostrar el producto más caro.
+CREATE PROCEDURE Producto_caro AS
+
+BEGIN
+SELECT * FROM Productos WHERE precio = MAX(precio)
+END;
+
+12 - Reducir el stock de un producto.
+CREATE PROCEDURE Reducir_stock AS
+@id INT
+
+BEGIN
+UPDATE Productos SET stock = stock - 1 WHERE id = @id
+END;
+
+13 -  Eliminar provincias sin ciudades asociadas.
+CREATE PROCEDURE Eliminar_provincias_nociu AS
+
+BEGIN
+DELETE * FROM Provincias WHERE id NOT IN(SELECT provincia FROM Ciudades)
+END;
+
+14 - Mostrar todas las compras de un cliente.
+CREATE PROCEDURE Compras_cliente AS
+@idcliente INT
+
+BEGIN
+SELECT * FROM Compras WHERE cliente = @idcliente
+END;
+
+15 - Agregar una provincia.
+CREATE PROCEDURE Agregar_provincia AS
+@id INT
+@nombre VARCHAR(60)
+@capital VARCHAR(60)
+@gobernador VARCHAR60)
+@poblacion INT
+@superficie INT
+@autonoma DATE
+@region VARCHAR(60)
+@partido VARCHAR(60)
+
+
+BEGIN
+INSERT INTO (id, nombre, capital, gobernador, poblacion, superficie, autonoma_desde, region, partido) VALUE(@idprovincia, @nombreprovincia, @capitalprovincia, @gobernadoprovincia, @poblacionprovincia, @superficieprovincia, @autonomaprovincia, @regionprovincia, @partidoprovincia)
+END;
+
+16 - Eliminar productos de una marca.
+CREATE PROCEDURE Eliminar_productom AS
+@marca VARCHAR(40)
+
+BEGIN
+DELETE* FROM Productos WHERE marca = @marca
+END;
+
+17 - Cambiar el precio de un producto.
+CREATE PROCEDURE Cambiar_precio AS
+@id INT
+@nuevoprecio DECIMAL(7,2)
+
+BEGIN
+UPDATE Productos SET precio = @nuevoprecio WHERE id = @id
+END;
+
+18 - Eliminar compras anteriores a una fecha.
+CREATE PROCEDURE Eliminar_comprasfecha AS
+@fecha DATE
+
+BEGIN
+DELETE * FROM Compras WHERE fecha < @fecha
+END;
+
+19 -  Mostrar todos los productos con stock menor a una cantidad recibida.
+CREATE PROCEDURE Productos_stockmenor AS
+@stock INT
+
+BEGIN
+SELECT * FROM Productos WHERE stock < @stock
+END;
+
+20 - Agregar un producto con stock inicial recibido por parámetro.
+CREATE PROCEDURE Agregar_productostockinicial AS
+@id INT
+@descripcion VARCHAR(60)
+@marca VARCHAR(40)
+@precio DECIMAL(7,2)
+
+
+BEGIN
+
+INSERT INTO (id, descripcion, marca, precio, stock) VALUES(@id, @descripcion, @marca, @precio, 100);
+END;
+
+21 - Eliminar clientes que no realizan compras desde determinada fecha.
+CREATE PROCEDURE Eliminar_cliente_compradesde AS
+@fecha DATE
+
+BEGIN
+DELETE * FROM Clientes WHERE id IN(SELECT cliente FROM Compras WHERE fecha < @fecha)
+END;
+
+22 - Marcar un producto como fuera de stock.
+CREATE PROCEDURE Marcar_producto AS
+@id INT
+
+BEGIN
+UPDATE Productos SET stock = 0 WHERE id = @id
+END;
+
+23 - Registrar una compra.
+CREATE PROCEDURE Registrar_compra AS
+@id INT
+@fecha DATE
+@cliente INT
+@producto INT
+@cant INT
+
+BEGIN
+
+INSERT INTO Compras(id, fecha, cliente, producto, cant) VALUES(@id, @fecha, @cliente, @producto, @cant)
+END;
+
+24 -  Aumentar todos los precios de una marca un porcentaje determinado
+CREATE PROCEDURE Aumentar_precios_marcaporcentaje AS
+@marca VARCHAR(40)
+@porcentaje INT
+
+BEGIN
+UPDATE Productos SET precio = precio + (precio * (@porcentaje / 100)) WHERE marca = @marca
+END;
+
+
+
 
