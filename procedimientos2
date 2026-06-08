@@ -36,5 +36,14 @@ IF @precio > 0 THEN
 INSERT INTO Productos VALUES(@id, @descripcion, @marca, @precio, @stock)
 END;
 
+5 - Mostrar las compras realizadas entre 2 fechas
+CREATE PROCEDURE Mostrar_compras_2 AS
+@fecha1 DATE
+@fecha2 DATE
 
+BEGIN
+SELECT * FROM Compras WHERE fecha BETWEEN @fecha1 AND @fecha2
+END;
+
+6- 
 
