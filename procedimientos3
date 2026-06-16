@@ -1,0 +1,211 @@
+1 - Mostrar todas las compras con nombre de cliente y descripción del producto
+CREATE PROCEDURE Mostrar_compras AS
+
+BEGIN
+SELECT Compras.*, Clientes.nombre, Productos.descripcion FROM Compras JOIN Clientes ON Compras.cliente = Clientes.id JOIN Productos ON Compras.producto = Productos.id
+END;
+
+2 - Calcular el precio final de una compra
+CREATE PROCEDURE Calcular_precio_final AS
+@id INT
+
+BEGIN
+SELECT (Productos.precio * Productos.cant) AS Precio_Final FROM Compras JOIN Productos ON Compras.producto = Productos.id WHERE Compras.id = @id
+END;
+
+3 - Verificar si una compra puede realizarse: ingresa el nombre del cliente (debe estar registrado) y la cantidad a comprar (debe haber stock suficiente). En caso afirmativo, realizar la compra.
+CREATE PROCEDURE Verificar_compra AS
+@nombre VARCHAR(50)
+@cant INT
+@cliente INT
+@producto INT
+
+BEGIN
+IF(@nombre IN(SELECT nombre FROM Clientes) AND @cant < (SELECT stock FROM Productos WHERE id = @producto))
+THEN INSERT INTO COMPRAS(id, fecha, cliente, producto, cant) VALUES(102, NOW(), @cliente, @producto, @cant)
+ELSE
+THEN 'No se puede realizar'
+END;
+
+4 - Calcular el total gastado por un cliente
+CREATE PROCEDURE Calcular_total_gastado AS
+@id INT
+
+BEGIN
+SELECT Clientes.nombre, SUM(Compras.cant*Productos.precio) AS Total_gastado FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente JOIN Productos ON Compras.producto = Productos.id WHERE Clientes.id = @id
+END;
+
+
+5 - Mostrar región de cada cliente
+CREATE PROCEDURE Region_cliente
+
+BEGIN
+SELECT Provincias.region, Clientes.nombre FROM Provincias JOIN Ciudades ON Provincias.id = Ciudades.provincia JOIN Clientes ON Ciudades.id = Clientes.localidad
+END;
+
+
+6 - Determinar si un producto es rentable según sus ventas
+CREATE PROCEDURE Determinar_productos AS
+@id INT
+
+BEGIN
+
+IF(COUNT(producto)
+
+
+
+7 - Obtener la población total de una región
+CREATE PROCEDURE Poblacion_total_region AS
+@region VARCHAR(50)
+
+BEGIN
+SELECT region, SUM(poblacion) AS Poblacion FROM Provincias WHERE region = @region
+END;
+
+
+8 - Verificar si un cliente existe
+CREATE PROCEDURE Verificacion_cliente AS
+@nombre VARCHAR(60)
+
+BEGIN
+IF(@nombre IN(SELECT nombre FROM Clientes, 'El cliente existe', 'El cliente no existe')
+END;
+
+
+9 - Mostrar total gastado por cliente
+CREATE PROCEDURE Total_gastado AS
+
+BEGIN
+SELECT Clientes.nombre, SUM(Compras.cant*Productos.precio) AS Total_gastado FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente JOIN Productos ON Compras.producto = Productos.id
+END;
+
+
+10 - Mostrar cliente, ciudad y provincia
+CREATE PROCEDURE Doxear_cliente AS
+@nombre VARCHAR(60)
+
+BEGIN
+SELECT Clientes.nombre, Ciudades.nombre, Provincias.nombre FROM Clientes JOIN Ciudades ON Clientes.localidad = Ciudades.id JOIN Provincias ON Ciudades.provincia = Provincias.id WHERE Clientes.nombre = @nombre
+END;
+
+11 -  Calcular el valor total del inventario ($precio \times stock$)
+CREATE PROCEDURE Valor_total_inventario AS
+
+BEGIN
+SELECT SUM(precio*stock) AS Valor_total FROM Productos
+END;
+
+12 -  Verificar si una ciudad supera cierta población
+CREATE PROCEDURE Verificar_poblacion AS
+@id INT
+
+BEGIN
+IF((SELECT poblacion FROM Ciudades WHERE id = @id) > 100000, 'Supera la cantidad', 'No supera la cantidad')
+END;
+
+13 - Mostrar cantidad comprada por cliente
+CREATE PROCEDURE Cantidad_comprada_cliente AS
+
+BEGIN
+SELECT Clientes.nombre, SUM(Compras.cant) AS Total_comprada FROM Compras JOIN Clientes ON Compras.cliente = Clientes.id
+END;
+
+14 -  Informar si un producto necesita reposición
+CREATE PROCEDURE Informar_reposicion AS
+@id INT
+
+BEGIN
+IF((SELECT stock FROM Productos) = 0, 'Necesita stock', 'Esta bien')
+END;
+
+15 - Calcular cuánto dinero representan los productos de una marca
+CREATE PROCEDURE Calcular_dinero AS
+@marca VARCHAR(60)
+
+BEGIN
+SELECT SUM(precio*stock) FROM Productos WHERE marca = @marca
+END;
+
+
+16 - Verificar si un producto tiene stock suficiente: se pasa una cantidad $X$ por parámetro y se indica si hay suficiente o no
+CREATE PROCEDURE Verificar_producto AS
+@id INT
+
+BEGIN
+IF((SELECT stock FROM Productos WHERE id = @id) > 100, 'Hay suficiente', 'No hay sufiente')
+END;
+
+17 - Mostrar provincia e intendente de la ciudad donde vive cada cliente.
+CREATE PROCEDURE Mostrar_provincia_intendente AS
+
+BEGIN
+SELECT Clientes.nombre, Provincias.nombre, Provincias.intendente FROM Provincias JOIN Ciudades ON Provincias.id = Ciudades.provincia JOIN Clientes ON Ciudades.id = Clientes.localidad
+END;
+
+18 - Aplicar el IVA a un producto y mostrarlo
+CREATE PROCEDURE Aplicar_IVA AS
+@id INT
+
+BEGIN
+SELECT descripcion, (precio*1.21) AS Precio FROM Productos WHERE id = @id
+END;
+
+19 - Obtener la compra más grande realizada
+CREATE PROCEDURE Compra_masgrande AS
+
+BEGIN
+SELECT MAX(Productos.precio * Compras.cant) FROM Compras JOIN Productos ON Compras.producto = Productos.id
+END;
+
+20 - Mostrar clientes agrupados por provincia
+CREATE PROCEDURE Clientes_agrupados AS
+
+BEGIN
+SELECT * FROM Clientes WHERE localidad IN(SELECT id FROM Ciudades WHERE provincia IN(SELECT id FROM Provincias GROUP BY Provincias))
+END;
+
+21 - Detectar posibles fraudes o errores: Mostrar todos los clientes que hayan realizado dos o más compras en un intervalo de tiempo menor a 5 minutos
+CREATE PROCEDURE Detectar_errores AS
+
+BEGIN
+SELECT Clientes.*, Compras.fecha FROM Compras JOIN Clientes ON Compras.cliente = Clientes.id WHERE DATEDIFF(fecha) < | FALTA TERMINAR |
+END;
+
+22 - Generar un ranking de marcas: Listar el "Top 3" de las marcas más vendidas de cada región, mostrando el total recaudado por cada una
+CREATE PROCEDURE Top3_marcas AS
+
+BEGIN
+SELECT Provincias.region, Productos.marca, SUM(Productos.precio * Compras.cant) AS Total_recaudado FROM Provincias
+JOIN Ciudades ON Provincia.id = Ciudades.provincia JOIN Clientes ON Ciudades.id = Clientes.localidad JOIN Compras ON Clientes.id = Compras.cliente ORDER BY SUM(Productos.precio * Compras.cant)
+END;
+
+23 - Calcular la retención de clientes: Determinar cuántos clientes que compraron en el mes anterior volvieron a realizar una compra en el mes actual.
+CREATE PROCEDURE Retencion_clientes AS
+
+BEGIN
+SELECT COUNT(Clientes.id) AS Total_clientes FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente WHERE DATEDIFF(fecha,) <  | FALTA TERMINAR |
+END;
+
+
+24 - Actualizar precios por inflación: Aumentar un 15% los productos de una marca específica, pero solo si pertenecen a provincias con una población mayor a 1.000.000 de habitantes
+CREATE PROCEDURE Actualizar_precio AS
+@marca VARCHAR(50)
+
+BEGIN
+UPDATE Productos SET precio = (precio*1.15) WHERE marca = @marca AND Provincia.poblacion | FALTA TERMINAR |
+END;
+
+25 - Reporte de estacionalidad: Mostrar cuál es el mes del año en el que cada marca registra su mayor volumen de ventas.
+CREATE PROCEDURE Reporte_estacional AS
+
+BEGIN
+SELECT Productos.marca, | FALTA TERMINAR |
+END;
+
+26 -  Identificar "Clientes Embajadores": Mostrar aquellos clientes que han comprado absolutamente todos los productos disponibles de una marca específica
+CREATE PROCEDURE Clientes_embajadores AS
+@marca VARCHAR(50)
+
+BEGIN
+SELECT Clientes.nombre FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente JOIN Productos ON Compras.producto = Productos.id WHERE | FALTA TERMINAR |
+END;
