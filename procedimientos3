@@ -2,7 +2,8 @@
 CREATE PROCEDURE Mostrar_compras AS
 
 BEGIN
-SELECT Compras.*, Clientes.nombre, Productos.descripcion FROM Compras JOIN Clientes ON Compras.cliente = Clientes.id JOIN Productos ON Compras.producto = Productos.id
+SELECT Compras.*, Clientes.nombre, Productos.descripcion FROM Compras JOIN Clientes ON Compras.cliente = Clientes.id
+JOIN Productos ON Compras.producto = Productos.id
 END;
 
 2 - Calcular el precio final de una compra
@@ -10,10 +11,12 @@ CREATE PROCEDURE Calcular_precio_final AS
 @id INT
 
 BEGIN
-SELECT (Productos.precio * Productos.cant) AS Precio_Final FROM Compras JOIN Productos ON Compras.producto = Productos.id WHERE Compras.id = @id
+SELECT (Productos.precio * Compras.cant) AS Precio_Final FROM Compras JOIN Productos ON Compras.producto = Productos.id
+WHERE Compras.id = @id
 END;
 
-3 - Verificar si una compra puede realizarse: ingresa el nombre del cliente (debe estar registrado) y la cantidad a comprar (debe haber stock suficiente). En caso afirmativo, realizar la compra.
+3 - Verificar si una compra puede realizarse: ingresa el nombre del cliente (debe estar registrado) y la cantidad a comprar
+(debe haber stock suficiente). En caso afirmativo, realizar la compra.
 CREATE PROCEDURE Verificar_compra AS
 @nombre VARCHAR(50)
 @cant INT
@@ -21,10 +24,9 @@ CREATE PROCEDURE Verificar_compra AS
 @producto INT
 
 BEGIN
-IF(@nombre IN(SELECT nombre FROM Clientes) AND @cant < (SELECT stock FROM Productos WHERE id = @producto))
-THEN INSERT INTO COMPRAS(id, fecha, cliente, producto, cant) VALUES(102, NOW(), @cliente, @producto, @cant)
-ELSE
-THEN 'No se puede realizar'
+SELECT IF(@nombre IN(SELECT nombre FROM Clientes) AND @cant < (SELECT stock FROM Productos WHERE id = @producto),
+INSERT INTO COMPRAS(id, fecha, cliente, producto, cant) VALUES(102, NOW(), @cliente, @producto, @cant), 'No se puede realizar')
+FROM Compras WHERE producto = @producto
 END;
 
 4 - Calcular el total gastado por un cliente
@@ -32,7 +34,8 @@ CREATE PROCEDURE Calcular_total_gastado AS
 @id INT
 
 BEGIN
-SELECT Clientes.nombre, SUM(Compras.cant*Productos.precio) AS Total_gastado FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente JOIN Productos ON Compras.producto = Productos.id WHERE Clientes.id = @id
+SELECT Clientes.nombre, SUM(Compras.cant*Productos.precio) AS Total_gastado FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente
+JOIN Productos ON Compras.producto = Productos.id WHERE Clientes.id = @id
 END;
 
 
@@ -40,7 +43,8 @@ END;
 CREATE PROCEDURE Region_cliente
 
 BEGIN
-SELECT Provincias.region, Clientes.nombre FROM Provincias JOIN Ciudades ON Provincias.id = Ciudades.provincia JOIN Clientes ON Ciudades.id = Clientes.localidad
+SELECT Provincias.region, Clientes.nombre FROM Provincias JOIN Ciudades ON Provincias.id = Ciudades.provincia
+JOIN Clientes ON Ciudades.id = Clientes.localidad
 END;
 
 
@@ -49,9 +53,8 @@ CREATE PROCEDURE Determinar_productos AS
 @id INT
 
 BEGIN
-
-IF(COUNT(producto)
-
+SELECT IF(COUNT(producto) < 100, 'No es rentable', 'Es rentable') FROM Productos WHERE id = @id
+END;
 
 
 7 - Obtener la población total de una región
@@ -68,7 +71,7 @@ CREATE PROCEDURE Verificacion_cliente AS
 @nombre VARCHAR(60)
 
 BEGIN
-IF(@nombre IN(SELECT nombre FROM Clientes, 'El cliente existe', 'El cliente no existe')
+SELECT IF(@nombre IN(SELECT nombre FROM Clientes, 'El cliente existe', 'El cliente no existe') FROM Clientes WHERE nombre = @nombre
 END;
 
 
@@ -76,7 +79,8 @@ END;
 CREATE PROCEDURE Total_gastado AS
 
 BEGIN
-SELECT Clientes.nombre, SUM(Compras.cant*Productos.precio) AS Total_gastado FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente JOIN Productos ON Compras.producto = Productos.id
+SELECT Clientes.nombre, SUM(Compras.cant*Productos.precio) AS Total_gastado FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente
+JOIN Productos ON Compras.producto = Productos.id
 END;
 
 
@@ -85,7 +89,8 @@ CREATE PROCEDURE Doxear_cliente AS
 @nombre VARCHAR(60)
 
 BEGIN
-SELECT Clientes.nombre, Ciudades.nombre, Provincias.nombre FROM Clientes JOIN Ciudades ON Clientes.localidad = Ciudades.id JOIN Provincias ON Ciudades.provincia = Provincias.id WHERE Clientes.nombre = @nombre
+SELECT Clientes.nombre, Ciudades.nombre, Provincias.nombre FROM Clientes JOIN Ciudades ON Clientes.localidad = Ciudades.id
+JOIN Provincias ON Ciudades.provincia = Provincias.id WHERE Clientes.nombre = @nombre
 END;
 
 11 -  Calcular el valor total del inventario ($precio \times stock$)
@@ -100,7 +105,8 @@ CREATE PROCEDURE Verificar_poblacion AS
 @id INT
 
 BEGIN
-IF((SELECT poblacion FROM Ciudades WHERE id = @id) > 100000, 'Supera la cantidad', 'No supera la cantidad')
+SELECT IF((SELECT poblacion FROM Ciudades WHERE id = @id) > 100000, 'Supera la cantidad', 'No supera la cantidad')
+FROM Ciudades WHERE id = @id
 END;
 
 13 - Mostrar cantidad comprada por cliente
@@ -115,7 +121,7 @@ CREATE PROCEDURE Informar_reposicion AS
 @id INT
 
 BEGIN
-IF((SELECT stock FROM Productos) = 0, 'Necesita stock', 'Esta bien')
+SELECT IF((SELECT stock FROM Productos) = 0, 'Necesita stock', 'Esta bien') FROM Productos WHERE id = @id
 END;
 
 15 - Calcular cuánto dinero representan los productos de una marca
@@ -132,14 +138,15 @@ CREATE PROCEDURE Verificar_producto AS
 @id INT
 
 BEGIN
-IF((SELECT stock FROM Productos WHERE id = @id) > 100, 'Hay suficiente', 'No hay sufiente')
+SELECT IF((SELECT stock FROM Productos WHERE id = @id) > 100, 'Hay suficiente', 'No hay sufiente') FROM Productos WHERE id = @id
 END;
 
 17 - Mostrar provincia e intendente de la ciudad donde vive cada cliente.
 CREATE PROCEDURE Mostrar_provincia_intendente AS
 
 BEGIN
-SELECT Clientes.nombre, Provincias.nombre, Provincias.intendente FROM Provincias JOIN Ciudades ON Provincias.id = Ciudades.provincia JOIN Clientes ON Ciudades.id = Clientes.localidad
+SELECT Clientes.nombre, Provincias.nombre, Provincias.intendente FROM Provincias JOIN Ciudades ON
+Provincias.id = Ciudades.provincia JOIN Clientes ON Ciudades.id = Clientes.localidad
 END;
 
 18 - Aplicar el IVA a un producto y mostrarlo
@@ -164,11 +171,13 @@ BEGIN
 SELECT * FROM Clientes WHERE localidad IN(SELECT id FROM Ciudades WHERE provincia IN(SELECT id FROM Provincias GROUP BY Provincias))
 END;
 
-21 - Detectar posibles fraudes o errores: Mostrar todos los clientes que hayan realizado dos o más compras en un intervalo de tiempo menor a 5 minutos
+21 - Detectar posibles fraudes o errores: Mostrar todos los clientes que hayan realizado dos o más compras en un intervalo de
+tiempo menor a 5 minutos
 CREATE PROCEDURE Detectar_errores AS
 
 BEGIN
-SELECT Clientes.*, Compras.fecha FROM Compras JOIN Clientes ON Compras.cliente = Clientes.id WHERE DATEDIFF(fecha) < | FALTA TERMINAR |
+SELECT Clientes.*, Compras.fecha FROM Compras JOIN Clientes ON Compras.cliente = Clientes.id WHERE
+DATEDIFF(minute, Compras.fecha, NOW()) < 5
 END;
 
 22 - Generar un ranking de marcas: Listar el "Top 3" de las marcas más vendidas de cada región, mostrando el total recaudado por cada una
@@ -176,36 +185,47 @@ CREATE PROCEDURE Top3_marcas AS
 
 BEGIN
 SELECT Provincias.region, Productos.marca, SUM(Productos.precio * Compras.cant) AS Total_recaudado FROM Provincias
-JOIN Ciudades ON Provincia.id = Ciudades.provincia JOIN Clientes ON Ciudades.id = Clientes.localidad JOIN Compras ON Clientes.id = Compras.cliente ORDER BY SUM(Productos.precio * Compras.cant)
+JOIN Ciudades ON Provincia.id = Ciudades.provincia JOIN Clientes ON Ciudades.id = Clientes.localidad
+JOIN Compras ON Clientes.id = Compras.cliente ORDER BY SUM(Productos.precio * Compras.cant)
 END;
 
-23 - Calcular la retención de clientes: Determinar cuántos clientes que compraron en el mes anterior volvieron a realizar una compra en el mes actual.
+23 - Calcular la retención de clientes: Determinar cuántos clientes que compraron en el mes anterior volvieron a realizar
+una compra en el mes actual.
 CREATE PROCEDURE Retencion_clientes AS
 
 BEGIN
-SELECT COUNT(Clientes.id) AS Total_clientes FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente WHERE DATEDIFF(fecha,) <  | FALTA TERMINAR |
+SELECT COUNT(Clientes.id) AS Total_clientes FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente
+WHERE DATEDIFF(month, Compras.fecha, NOW()) < 1
 END;
 
 
-24 - Actualizar precios por inflación: Aumentar un 15% los productos de una marca específica, pero solo si pertenecen a provincias con una población mayor a 1.000.000 de habitantes
+24 - Actualizar precios por inflación: Aumentar un 15% los productos de una marca específica, pero solo si pertenecen a provincias con
+una población mayor a 1.000.000 de habitantes
 CREATE PROCEDURE Actualizar_precio AS
 @marca VARCHAR(50)
 
 BEGIN
-UPDATE Productos SET precio = (precio*1.15) WHERE marca = @marca AND Provincia.poblacion | FALTA TERMINAR |
+UPDATE Productos SET precio = (precio*1.15) WHERE marca = @marca AND (SELECT Provincias.poblacion FROM Provincias
+JOIN Ciudades ON Provincias.id = Ciudades.provincia JOIN Clientes ON Ciudades.id = Clientes.localidad
+JOIN Compras ON Clientes.id = Compras.cliente JOIN Productos ON Compras.producto = Productos.id WHERE Productos.marca = @marca) > 1000000
 END;
 
 25 - Reporte de estacionalidad: Mostrar cuál es el mes del año en el que cada marca registra su mayor volumen de ventas.
 CREATE PROCEDURE Reporte_estacional AS
 
 BEGIN
-SELECT Productos.marca, | FALTA TERMINAR |
+SELECT Productos.marca, COUNT(Compras.producto) AS Ventas FROM Productos JOIN Compras ON Productos.id = Compras.producto
+WHERE COUNT(Compras.producto) =
+(SELECT MAX(COUNT(Compras.producto)) AS Ventas FROM Productos JOIN Compras ON Productos.id = Compras.producto
+WHERE Compras.fecha > 2022-01-01 AND Compras.fecha < 2022-12-31)
 END;
 
-26 -  Identificar "Clientes Embajadores": Mostrar aquellos clientes que han comprado absolutamente todos los productos disponibles de una marca específica
+26 -  Identificar "Clientes Embajadores": Mostrar aquellos clientes que han comprado absolutamente todos los productos disponibles de una
+marca específica
 CREATE PROCEDURE Clientes_embajadores AS
 @marca VARCHAR(50)
 
 BEGIN
-SELECT Clientes.nombre FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente JOIN Productos ON Compras.producto = Productos.id WHERE | FALTA TERMINAR |
+SELECT Clientes.nombre FROM Clientes JOIN Compras ON Clientes.id = Compras.cliente JOIN Productos ON Compras.producto = Productos.id
+WHERE COUNT(Compras.cliente) = (SELECT COUNT(Productos.id) FROM Productos WHERE marca = @marca)
 END;
