@@ -1,0 +1,63 @@
+1 - Crear una función Región_Cliente(cliente) que utilice provincia_cliente(cliente)
+DELIMITER //
+CREATE FUNCTION provincia_cliente(cliente INT)
+RETURNS VARCHAR(60)
+
+BEGIN
+DECLARE nombre_provincia VARCHAR(60);
+SELECT Provincias.nombre INTO nombre_provincia FROM Provincias JOIN Ciudades ON Provincias.id = Ciudades.provincia
+JOIN Clientes ON Ciudades.id = Clientes.localidad WHERE Clientes.id = cliente;
+END //
+
+CREATE FUNCTION region_cliente(cliente1 INT)
+RETURNS VARCHAR(60)
+
+BEGIN
+DECLARE nombre_region VARCHAR(60);
+SELECT Provincias.region INTO nombre_region FROM Provincias JOIN Ciudades ON Provincias.id = Ciudades.provincia
+JOIN Clientes ON Ciudades.id = Clientes.localidad WHERE Clientes.id = cliente1 AND provincia_cliente(cliente) = Provincias.nombre;
+
+DECLARE provincia_cl VARCHAR(60);
+SET provincia_c1 = nombre_provincia;
+
+DECLARE region_cl VARCHAR(60);
+SET region_cl = nombre_region;
+RETURN region_cl;
+
+END //
+DELIMITER;
+
+2 - Crear una procedimiento que permita mostrar todos los objetos en el "nivel del cliente"
+-> mediante una función se determina el nivel del cliente
+DELIMITER //
+CREATE FUNCTION nivel_cliente(cliente INT)
+RETURNS VARCHAR(40)
+
+BEGIN
+DECLARE gasto DECIMAL(10,2);
+SELECT SUM(Productos.precio*Compras.cant) INTO gasto FROM Compras JOIN Productos ON Compras.producto = Productos.id
+JOIN Clientes ON Compras.cliente = Clientes.id WHERE Clientes.id = cliente;
+
+IF gasto < 1000
+THEN RETURN 'Bronce'
+ELSE
+IF gasto < 3000
+THEN RETURN 'Plata'
+ELSE
+IF gasto < 5000
+THEN RETURN 'Oro'
+ELSE
+RETURN 'Platino'
+END IF;
+END IF;
+END IF;
+END //
+
+CREATE PROCEDURE objetos AS
+@nivel VARCHAR(40)
+
+BEGIN
+SELECT descripcion, precio FROM Productos
+WHERE precio <= CASE WHERE nivel = 'Bronce' THEN  
+
+
