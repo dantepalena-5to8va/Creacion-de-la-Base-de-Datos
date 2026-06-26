@@ -54,10 +54,78 @@ END IF;
 END //
 
 CREATE PROCEDURE objetos AS
-@nivel VARCHAR(40)
 
 BEGIN
+DECLARE nivel VARCHAR(40)
+nivel = nivel_cliente(cliente);
 SELECT descripcion, precio FROM Productos
-WHERE precio <= CASE WHERE nivel = 'Bronce' THEN  
+WHERE precio <= CASE
+WHERE nivel = 'Bronce' THEN 10
+WHERE nivel = 'Plata' THEN 100
+WHERE nivel = 'Oro' THEN 500
+WHERE nivel = 'Platino' THEN 500
+END;
+
+3 - Crear una función analisis_cliente(id_cliente) que devuelva: Juan Pérez | Gasto: $5400 | Premium  ->
+Si es premium se debe determinar con una función aparte, y lo es si gasto mas de 5000$
+DELIMITER //
+CREATE FUNCTION status_cliente(cliente INT)
+RETURNS VARCHAR(60)
+
+BEGIN
+DECLARE gasto DECIMAL(10,2);
+SELECT SUM(P.precio * Com.cant) INTO gasto FROM Clientes Cli JOIN Compras Com ON Cli.id = Com.cliente JOIN Productos P ON Com.producto = P.id
+WHERE Cli.id = cliente
+
+IF gasto >= 5000
+THEN RETURN 'Premium'
+ELSE
+RETURN 'Normal'
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE FUNCTION analisis_cliente(id_cliente INT)
+RETURNS VARCHAR(100)
+
+BEGIN
+DECLARE nombre VARCHAR(60);
+DECLARE apellido VARCHAR(60);
+DECLARE gasto DECIMAL(10,2);
+DECLARE status VARCHAR(60);
+
+status = status_cliente(cliente);
+
+SELECT Cli.nombre INTO nombre, Cli.apellido INTO apellido, SUM(P.precio*Com.cant) INTO gasto FROM Clientes Cli JOIN Compras Com ON Cli.id = Com.cliente
+JOIN Productos P ON Com.producto = P.id WHERE Cli.id = id_cliente
+
+RETURN CONCAT(nombre, ' | ', apellido, ' | ', "Gasto: ", gasto, ' | ', status);  
+END //
+DELIMITER;
+
+4 - Crear una función estado_producto(id_producto) que devuelva:
+Producto: Resma A4 | Vendidos: 120 | Stock: 15 | STOCK BAJO -> usando una función alerta_stock(id_producto) que devuelva:
+"REPOSICION URGENTE" si stock = 0
+"STOCK BAJO" si stock < 20
+"OK" en otro caso.
+
+DELIMITER //
+
+CREATE FUNCTION estado_producto(id_producto INT)
+RETURNS VARCHAR(100)
+
+BEGIN
+DECLARE producto VARCHAR(40)
+DECLARE cant INT
+DECLARE stock INT
+DECLARE estado VARCHAR(60)
+
+estado = alerta_stock(id_producto)
+
+SELECT P.descripcion INTO producto, SUM(C.cant) INTO cant, P.stock INTO stock FROM Productos P JOIN Compras C ON P.id = C.producto WHERE P.id = id_producto
+
+RETURN CONCAT("Producto: ", producto, ' | ', "Vendidos: ", ' | ', cant, ' | ', "Stock: ", stock, ' | ', estado) 
+END //
+DELIMITER;
 
 
