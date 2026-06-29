@@ -74,7 +74,8 @@ RETURNS VARCHAR(60)
 
 BEGIN
 DECLARE gasto DECIMAL(10,2);
-SELECT SUM(P.precio * Com.cant) INTO gasto FROM Clientes Cli JOIN Compras Com ON Cli.id = Com.cliente JOIN Productos P ON Com.producto = P.id
+SELECT SUM(P.precio * Com.cant) INTO gasto FROM Clientes Cli JOIN Compras Com ON Cli.id = Com.cliente
+JOIN Productos P ON Com.producto = P.id
 WHERE Cli.id = cliente
 
 IF gasto >= 5000
@@ -96,7 +97,8 @@ DECLARE status VARCHAR(60);
 
 status = status_cliente(cliente);
 
-SELECT Cli.nombre INTO nombre, Cli.apellido INTO apellido, SUM(P.precio*Com.cant) INTO gasto FROM Clientes Cli JOIN Compras Com ON Cli.id = Com.cliente
+SELECT Cli.nombre INTO nombre, Cli.apellido INTO apellido, SUM(P.precio*Com.cant) INTO gasto FROM Clientes Cli
+JOIN Compras Com ON Cli.id = Com.cliente
 JOIN Productos P ON Com.producto = P.id WHERE Cli.id = id_cliente
 
 RETURN CONCAT(nombre, ' | ', apellido, ' | ', "Gasto: ", gasto, ' | ', status);  
@@ -122,10 +124,78 @@ DECLARE estado VARCHAR(60)
 
 estado = alerta_stock(id_producto)
 
-SELECT P.descripcion INTO producto, SUM(C.cant) INTO cant, P.stock INTO stock FROM Productos P JOIN Compras C ON P.id = C.producto WHERE P.id = id_producto
+SELECT P.descripcion INTO producto, SUM(C.cant) INTO cant, P.stock INTO stock FROM Productos P
+JOIN Compras C ON P.id = C.producto WHERE P.id = id_producto
 
 RETURN CONCAT("Producto: ", producto, ' | ', "Vendidos: ", ' | ', cant, ' | ', "Stock: ", stock, ' | ', estado) 
 END //
 DELIMITER;
 
+5 - Validador de Contraseñas Seguras
+DELIMITER //
+CREATE FUNCTION aux1(contraseña VARCHAR(60))
+RETURNS BOOLEAN
 
+BEGIN
+IF(contraseña > 8)
+THEN RETURN TRUE
+ELSE
+RETURN FALSE
+END IF;
+END //
+
+CREATE FUNCTION aux2(contraseña VARCHAR(60))
+RETURNS BOOLEAN
+
+BEGIN
+IF(contraseña REGEXP '0 1 2 3 4 5 7 6 8 9')
+THEN RETURN TRUE
+ELSE
+RETURN FALSE
+END IF;
+END //
+
+CREATE FUNCTION aux3(contraseña VARCHAR(60))
+RETURNS BOOLEAN
+
+BEGIN
+IF(contraseña REGEXP '(! - % & $ + * / \ = # = ? ¡ ¿ | ~ . , _ < > @ : ; ñ')
+THEN RETURN TRUE
+ELSE
+RETURN FALSE
+END IF;
+END //
+
+CREATE FUNCTION verificar_contraseña(contraseña VARCHAR(60))
+RETURNS VARCHAR(60)
+
+BEGIN
+DECLARE cont INT;
+cont = 0;
+
+IF(aux1(contraseña) == TRUE)
+THEN cont = cont + 1
+ELSE
+cont = cont
+END IF;
+
+IF(aux2(contraseña) == TRUE)
+THEN cont = cont + 1
+ELSE
+cont = cont
+END IF;
+
+IF(aux3(contraseña) == TRUE)
+THEN cont = cont + 1
+ELSE
+cont = cont
+END IF;
+
+IF(cont == 3)
+THEN RETURN "Contraseña Aceptada"
+ELSE
+RETURN "Contraseña Insegura"
+END IF;
+
+END //
+DELIMITER;
