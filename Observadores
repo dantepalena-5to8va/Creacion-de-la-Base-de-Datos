@@ -1,0 +1,73 @@
+DROP DATABASE IF EXIST oficina
+CREATE DATABASE oficina
+USE oficina
+
+1 - CREATE TABLE Roles(ID INT AUTO_INCREMENT, nombre VARCHAR(60), pagoxH DECIMAL(10,2))
+
+CREATE TABLE Empleados( DNI INT AUTO_INCREMENT, horasT INT, nombre VARCHAR(45), rol_id INT, 
+FOREIGN KEY rol_id REFERENCES Roles(ID))
+
+
+2 -
+DELIMITER //
+CREATE PROCEDURE Agregar_salario AS
+
+BEGIN
+ALTER TABLE Empleados ADD COLUMN salario DECIMAL(10,2)
+
+END //
+DELIMITER ;
+
+3 -
+DELIMITER // 
+CREATE TRIGGER Actualizar_salario
+AFTER UPDATE ON roles
+FOR EACH ROW
+
+BEGIN
+UPDATE Empleados SET salario = horasT * NEW.r.pagoxH JOIN Roles ON Roles.ID r = Empleados.rol_id 
+WHERE Roles.ID = NEW.ID;
+
+END //
+DELIMITER ;
+
+4 -
+DELIMITER //
+CREATE FUNCTION Eliminar_empleado(DNI_empleado INT)
+RETURNS VARCHAR(45)
+
+BEGIN
+
+IF DNI_empleado IN (SELECT DNI FROM Empleados)
+THEN
+DELETE * FROM Empleados WHERE DNI = DNI_empleado 
+RETURN "Empleado Eliminado"
+ELSE
+THEN RETURN "Empleado no existe o ya fue eliminado"
+END IF;
+
+END //
+DELIMITER;
+
+
+5 - 
+CREATE TRIGGER No_eliminar_gerente
+BEFORE DELETE ON Empleados
+
+FOR EACH ROW
+BEGIN
+IF (SELECT r.nombre FROM Empleados e JOIN Roles r ON e.rol_id = r.ID) == "gerente"
+THEN
+RAISE EXEPTION "No se pueden eliminar empleados con el rol de gerente"
+END IF;
+
+END //
+DELIMITER;
+
+
+
+
+
+
+
+
