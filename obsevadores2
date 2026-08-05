@@ -1,0 +1,171 @@
+1 -
+DELIMITER //
+CREATE TRIGGER anio_incoherente
+BEFORE INSERT ON Libros
+FOR EACH ROW
+
+BEGIN
+IF AnioPublicacion > CURDATE()
+THEN
+RAISE EXEPTION "Año de publicacion incoherente"
+END IF;
+
+END //
+DELIMITER;
+
+
+2 -
+DELIMITER //
+CREATE TRIGGER menos_de_3
+BEFORE INSERT ON Usuarios
+FOR EACH ROW
+
+BEGIN
+IF LENGHT(Nombre) < 3
+THEN
+RAISE EXEPTION "Nombre de usuario muy corto"
+END IF;
+
+END //
+DELIMITER;
+
+
+3 -
+DELIMITER //
+CREATE TRIGGER prestamo_incoherente
+BEFORE INSERT ON Prestamos
+FOR EACH ROW
+
+BEGIN
+IF FechaPrestamo > FechaDevolucion
+THEN
+RAISE EXEPTION "Fecha de devolucion incoherente"
+END IF;
+
+END //
+DELIMITER;
+
+
+4 -
+DELIMITER //
+CREATE TRIGGER nombre_mayus
+BEFORE INSERT ON Generos
+FOR EACH ROW
+
+BEGIN
+INSERT INTO Generos VALUES(GeneroID, UPPER(Nombre))
+
+END //
+DELIMITER;
+
+
+5 -
+DELIMITER //
+CREATE TRIGGER autor_modoT
+BEFORE INSERT ON Autores
+FOR EACH ROW
+
+BEGIN
+INSERT INTO Autores VALUES(AutorID, UPPER(Nombre), Nacionalidad)
+
+END //
+DELIMITER;
+
+6 -
+DELIMITER //
+CREATE TRIGGER libros_perdidos
+AFTER UPDATE ON Prestamos
+FOR EACH ROW
+
+BEGIN
+IF FechaDevolucion < CURDATE()
+THEN
+IF LibroID = (SELECT LibroID FROM Libros)
+THEN
+INSERT INTO LibrosPerdidos VALUES(LibroID, Titulo, AutorID, GeneroID, AnioPublicacion, ISBN)
+END IF;
+END IF;
+
+END //
+DELIMITER;
+
+
+7 -
+DELIMITER //
+CREATE TRIGGER isbn_repetido
+BEFORE INSERT ON Libros
+FOR EACH ROW
+
+BEGIN
+IF ISBN IN(SELECT ISBN FROM Libros)
+THEN
+RAISE EXEPTION "No se puede insertar porque la ISBN ya esta registrada"
+END IF;
+
+END //
+DELIMITER;
+
+
+8 -
+DELIMITER //
+CREATE TRIGGER libro_no_autor
+BEFORE INSERT ON Libros
+FOR EACH ROW
+
+BEGIN
+IF AutorID IS NULL OR AutorID NOT IN(SELECT AutorID FROM Autores)
+THEN
+RAISE EXEPTION "No se puede insertar un libro sin un autor"
+END IF;
+
+END //
+DELIMITER;
+
+9 -
+DELIMITER //
+CREATE TRIGGER prestamo_no_libro
+BEFORE INSERT ON Prestamos
+FOR EACH ROW
+
+BEGIN
+IF LibroID IS NULL OR LibroID NOT IN(SELECT LibroID FROM Libros)
+THEN
+RAISE EXEPTION "No se puede registar un prestamo sin un libro"
+END IF;
+
+END //
+DELIMITER;
+
+10 -
+DELIMITER //
+CREATE TRIGGER caracteres_no_permitidos
+BEFORE INSERT ON Libros
+FOR EACH ROW
+
+BEGIN
+IF LibroID REGEXP 'A B C D E F G H I J K L M N Ñ O P Q R S T U V W X Y Z / ( ) = ! " # $ % & | ° ¬ * + } { ´ - _ . , [ ] \ @'
+
+| TERMINAR |
+
+
+END IF;
+
+END // 
+DELIMITER;
+
+11 -
+DELIMITER //
+CREATE TRIGGER no_modificar_fecha
+BEFORE UPDATE ON Prestamos
+FOR EACH ROW
+
+BEGIN
+IF SET FechaDevolucion
+THEN
+RAISE EXEPTION "No se puede modificar la fecha de devolucion"
+END IF;
+
+END //
+DELIMITER;
+
+
