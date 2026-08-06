@@ -53,7 +53,7 @@ BEFORE INSERT ON Generos
 FOR EACH ROW
 
 BEGIN
-INSERT INTO Generos VALUES(GeneroID, UPPER(Nombre))
+SET Nombre = UPPER(Nombre)
 
 END //
 DELIMITER;
@@ -66,7 +66,7 @@ BEFORE INSERT ON Autores
 FOR EACH ROW
 
 BEGIN
-INSERT INTO Autores VALUES(AutorID, UPPER(Nombre), Nacionalidad)
+SET Nombre = UPPER(Nombre)
 
 END //
 DELIMITER;
