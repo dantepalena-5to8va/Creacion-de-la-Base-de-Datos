@@ -1,0 +1,216 @@
+1 -
+USE biblioteca
+CREATE TABLE Auditorias(AudiID INT PRIMARY KEY AUTO_INCREMENT, LibroID INT Email VARCHAR(255), FOREING KEY LibroID REFERENCES Libros(LibroID))
+
+DELIMITER //
+CREATE TRIGGER registrar_auditoria
+BEFORE INSERT ON Libros
+FOR EACH ROW
+
+BEGIN
+INSERT INTO Auditorias VALUES(AudiID, LibroID)
+
+END //
+DELIMITER ;
+
+2 -
+USE biblioteca
+CREATE TABLE RegistrosT(RegistroID INT PRIMARY KEY AUTO_INCREMENT, LibroID INT TituloNuevo VARCHAR(255),
+TituloViejo VARCHAR(255), FOREING KEY LibroID REFERENCES Libros(LibroID))
+
+DELIMITER //
+CREATE TRIGGER registro_titulos
+BEFORE UPDATE ON Libros
+FOR EACH ROW
+
+BEGIN
+IF NEW(Titulo) <> OLD(Titulo)
+THEN
+INSERT INTO RegistrosT VALUES(RegistroID, LibroID, NEW(Titulo), OLD(Titulo))
+END IF;
+
+END //
+DELIMITER;
+
+3 -
+USE biblioteca
+CREATE TABLE RegistrosE(RegistroID INT PRIMARY KEY AUTO_INCREMENT, UsuarioID INT, EmailNuevo VARCHAR(255),
+EmailViejo VARCHAR(255),FOREING KEY UsuarioID REFERENCES Usuarios(UsuarioID))
+
+DELIMITER //
+CREATE TRIGGER registro_emails
+BEFORE UPDATE ON Usuarios
+FOR EACH ROW
+
+BEGIN
+IF NEW(Email) <> OLD(Email)
+THEN
+INSERT INTO RegistrosE VALUES(RegistroID, UsuarioID, NEW(Email), OLD(Email))
+END IF;
+
+END //
+DELIMITER;
+
+4 -
+USE biblioteca
+CREATE TABLE RespaldoAu(RespaldoID INT PRIMARY KEY AUTO_INCREMENT, AutorID INT, Nombre VARCHAR(255), Nacionalidad VARCHAR(255),
+FOREING KEY AutorID REFERENCES Autores(AutorID))
+
+DELIMITER //
+CREATE TRIGGER respaldo_autor
+BEFORE DELETE ON Autores
+FOR EACH ROW
+
+BEGIN
+INSERT INTO RespaldoAu VALUES(RespaldoID, AutorID, Nombre, Nacionalidad)
+
+END //
+DELIMITER ;
+
+5 -
+USE biblioteca
+CREATE TABLE RespaldoLi(RespaldoID INT PRIMARY KEY AUTO_INCREMENT, LibroID INT, Titulo VARCHAR(255), AutorID INT, GeneroID INT,
+AnioPublicacion INT, ISBN VARCHAR(20), FOREING KEY LibroID REFERENCES Libros(LibroID),
+FOREING KEY AutorID REFERENCES Libros(AutorID), FOREING KEY GeneroID REFERENCES Libros(GeneroID))
+
+DELIMITER //
+CREATE TRIGGER respaldo_libro
+BEFORE DELETE ON Libros
+FOR EACH ROW
+
+BEGIN
+INSERT INTO RespaldoLi VALUES(RespaldoID, LibroID, AutorID, GeneroID, AnioPublicacion, ISBN)
+
+END //
+DELIMITER;
+
+
+6 -
+USE biblioteca
+CREATE TABLE RespaldoTotal(RespaldoID INT PRIMARY KEY AUTO_INCREMENT, AutorID INT, NombreAN VARCHAR(255),
+Nacionalidad VARCHAR(255), GeneroID INT, NombreG VARCHAR(255),
+LibroID INT, TituloN VARCHAR(255), TituloV VARCHAR(255), AnioPublicacion INT,
+ISBN VARCHAR(20), UsuarioID INT, NombreUN VARCHAR(255), NombreUV VARCHR(255), EmailN VARCHAR(255), EmailV VARCHAR(255),
+PrestamoID INT, FechaPrestamo DATE, FechaDevolucion DATE,
+FOREING KEY AutorID REFERENCES Autores(AutorID), FOREING KEY GeneroID REFERENCES Generos(GeneroID),
+FOREING KEY LibroID REFERENCES Libros(LibroID), FOREING KEY UsuarioID REFERENCES Usuarios(UsuarioID),
+FOREING KEY PrestamoID REFERENCES Prestamos(PrestamoID))
+
+DELIMITER //
+CREATE TRIGGER respaldito
+BEFORE UPDATE ON Autores, Generos, Libros, Usuarios, Prestamos
+FOR EACH ROW
+
+BEGIN
+INSER INTO RespaldoTotal VALUES(RespladoID, Autores.AutorID, Autores.Nombre, Autores.Nacionalidad,
+Generos.GeneroID, Generos.Nombre, Libros.LibroID, NEW(Libros.Titulo), OLD(Libros.Titulo), Libros.AnioPublicacion,
+Libros.ISBN, Usuarios.UsuarioID, NEW(Usuarios.Nombre), OLD(Usuarios.Nombre), NEW(Usuarios.Email), OLD(Usuarios.Email),
+Prestamos.PrestamoID, Prestamos.FechaPrestamo, Prestamos.FechaDevolucion)
+
+END //
+DELIMITER;
+
+
+7 -
+DELIMITER //
+CREATE TRIGGER no_prestar
+BEFORE INSERT ON Prestamos
+FOR EACH ROW
+
+BEGIN
+IF LibroID IN(SELECT LibroID FROM Prestamos) && LibroID IN(SELECT LibroID FROM Prestamos WHERE FechaDevolucion > CURDATE())
+THEN
+RAISE EXEPTION 'No se puede prestar ese libro'
+END IF;
+
+END //
+DELIMITER;
+
+8 -
+DELIMITER //
+CREATE TRIGGER no_mas_libros
+BEFORE INSERT ON Prestamos
+FOR EACH ROW
+
+BEGIN
+DECLARE ID INT
+ID = UsuarioID
+IF COUNT(SELECT UsuarioID FROM Prestamos WHERE UsuarioId = ID) > 3
+THEN
+RAISE EXEPTION 'No puede realizar mas prestamos'
+END IF;
+
+END //
+DELIMITER;
+
+9 -
+DELIMITER //
+CREATE TRIGGER no_eliminar_autor
+BEFORE DELETE ON Autores
+FOR EACH ROW
+
+BEGIN
+IF AutorID IN(SELECT AutorID FROM Libros)
+THEN
+RAISE EXEPTION 'No se puede eliminar este autor'
+END IF;
+
+END //
+DELIMITER;
+
+10 -
+DELIMITER //
+CREATE TRIGGER no_eliminar_genero
+BEFORE DELETE ON Generos
+FOR EACH ROW
+
+BEGIN
+IF GeneroID IN(SELECT GeneroID FROM Libros)
+THEN
+RAISE EXEPTION 'No se puede eliminar este genero'
+END IF;
+
+END //
+DELIMITER;
+
+
+11 -
+DELIMITER //
+CREATE TRIGGER no_eliminar_usuario
+BEFORE DELETE ON Usuarios
+FOR EACH ROW
+
+BEGIN
+IF UsuarioID IN(SELECT UsuarioID FROM Prestamos)
+THEN
+RAISE EXEPTION 'No se puede eliminar este usuario'
+END IF;
+
+END //
+DELIMITER;
+
+
+12 -
+| TERMINAR |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
