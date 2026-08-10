@@ -144,10 +144,8 @@ FOR EACH ROW
 
 BEGIN
 IF LibroID REGEXP 'A B C D E F G H I J K L M N Ñ O P Q R S T U V W X Y Z / ( ) = ! " # $ % & | ° ¬ * + } { ´ - _ . , [ ] \ @'
-
-| TERMINAR |
-
-
+THEN
+RAISE EXEPTION 'No se puede insertar caracteres no validos'
 END IF;
 
 END // 
