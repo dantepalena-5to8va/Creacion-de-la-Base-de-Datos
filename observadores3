@@ -191,10 +191,33 @@ DELIMITER;
 
 
 12 -
-| TERMINAR |
+USE biblioteca
+CREATE TABLE intentos_fallidos(ID INT PRIMARY KEY AUTO_INCREMENT, fecha_intento DATE, campo VARCHAR(50))
 
+DELIMITER //
+CREATE TRIGGER intentos_f
+BEFORE UPDATE ON Prestamos
+FOR EACH ROW
 
+BEGIN
+IF NEW(FechaPrestamo) <> OLD(FechaPrestamo)
+THEN INSERT INTO intentos_fallidos VALUES(CURDATE(),"FechaPrestamo")
+END IF;
 
+IF NEW(FechaDevolucion) <> OLD(FechaDevolucion)
+THEN INSERT INTO intentos_fallidos VALUES(CURDATE(),"FechaDevolucion")
+END IF;
+
+IF NEW(UsuarioID) <> OLD(UsuarioID)
+THEN INSERT INTO intentos_fallidos VALUES(CURDATE(),"UsuarioID")
+END IF;
+
+IF NEW(LibroID) <> OLD(LibroID)
+THEN INSERT INTO intentos_fallidos VALUES(CURDATE(),"LibroID")
+END IF;
+
+END //
+DELIMITER;
 
 
 
