@@ -1,0 +1,206 @@
+1 -
+DELIMITER //
+CREATE FUNCTION nombre_libro(ID_Libro INT)
+RETURNS VARCHAR
+
+BEGIN
+DECLARE nombre VARCHAR(255)
+
+SELECT Titulo INTO nombre FROM Libros WHERE LibroID = ID_Libro
+RETURN nombre
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE TRIGGER prestado
+BEFORE UPDATE ON Prestamos
+FOR EACH ROW
+
+BEGIN
+IF(nombre_libro(ID_Libro) IN (SELECT L.Titulo FROM Libros L JOIN Prestamos P ON L.LibroID = P.LibroID WHERE P.LibroID = ID_Libro))
+THEN
+INSERT INTO Auditorias VALUES(AudiID, (SELECT LibroID FROM Libros WHERE Titulo = nombre_libro(ID_Libro)))
+END IF;
+
+END //
+DELIMITER;
+
+
+2 -
+DELIMITER //
+CREATE FUNCTION dias_prestamo(fechaPrestamo DATE, fechaDevolucion DATE)
+RETURNS INT
+
+BEGIN
+DECLARE dias INT
+dias = DATEDIFF(days, fechaDevolucion,fechaPrestamo)
+
+RETURN dias
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE TRIGGER registrar
+BEFORE INSERT ON Prestamos
+FOR EACH ROW
+
+BEGIN
+IF(dias_prestamo(fechaDevolucion,fechaPrestamo) > 30)
+THEN
+RAISE EXEPTION 'No se puede registrar porque son mas de 30 dias'
+END IF;
+
+END //
+DELIMITER;
+
+3 -
+DELIMITER //
+CREATE FUNCTION titulo_libro(ID_Libro INT)
+RETURNS VARCHAR
+
+BEGIN
+DECLARE titulo VARCHAR(255)
+
+SELECT Titulo INTO titulo FROM Libros WHERE LibroID = ID_Libro
+RETURN titulo
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE FUNCTION autor_libro(ID_Libro INT)
+RETURNS VARCHAR
+
+BEGIN
+DECLARE autor VARCHAR(255)
+
+SELECT A.Nombre INTO autor FROM Libros L JOIN Autores A ON L.LibroID = A.LibroID WHERE LibroID = ID_Libro
+RETURN autor
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE FUNCTION descripcion_libro(ID_Libro INT)
+RETURNS VARCHAR
+
+BEGIN
+DECLARE descripcion VARCHAR(510)
+
+descripcion = CONCAT(titulo_libro(ID_Libro) " - " autor_libro(ID_Libro))
+RETURN descripcion
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE TRIGGER insertar
+BEFORE INSERT ON Prestamos
+FOR EACH ROW
+
+BEGIN
+IF(SUBSTRING(descripcion_libro(ID_Libro), 1, 255) IN(SELECT Titulo FROM Libros))
+THEN
+INSERT INTO Auditorias VALUES(AudiID, LibroID)
+END IF;
+
+END //
+DELIMITER;
+
+4 -
+DELIMITER //
+CREATE FUNCTION cantidad_libro_autor(ID_Autor INT)
+RETURNS INT
+
+BEGIN
+DECLARE cantidad INT
+
+SELECT COUNT(LibroID) INTO cantidad FROM Autores WHERE AutorID = ID_Autor
+RETURN cantidad
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE FUNCTION autor_nombre(ID_Autor INT)
+RETURNS VARCHAR
+
+BEGIN
+DECLARE autor VARCHAR(255)
+
+SELECT Nombre INTO autor FROM Autores WHERE AutorID = ID_Autor
+RETURN autor
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE FUNCTION descripcion_autor(ID_Autor INT)
+RETURNS VARCHAR
+
+BEGIN
+DECLARE descripcion VARCHAR(510)
+
+descripcion = CONCAT(autor_nombre(ID_Autor) " - " cantidad_libro_autor(ID_Autor) " libros registrados")
+RETURN descripcion
+
+END //
+DELIMITER;
+
+CREATE TRIGGER registrar_A
+AFTER INSERT ON Libros
+FOR EACH ROW
+
+BEGIN
+
+INSERT INTO Autores VALUES(AutorID, SUBSTRING(descripcion_autor(ID_Autor), 0, 255), Nacionalidad)
+END //
+DELIMITER;
+
+
+5 -
+DELIMITER //
+CREATE FUNCTION cantidad_libro_autor(ID_Autor INT)
+RETURNS INT
+
+BEGIN
+DECLARE cantidad INT
+
+SELECT COUNT(LibroID) INTO cantidad FROM Autores WHERE AutorID = ID_Autor
+RETURN cantidad
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE FUNCTION año_libro(ID_Libro INT)
+RETURNS INT
+
+BEGIN
+
+DECLARE año INT
+
+SELECT DATEDIFF(years, AnioPublicacion, CURDATE()) INTO año FROM Libros WHERE LibroID = ID_Libro
+RETURN año
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE TRIGGER determinar
+BEFORE INSERT ON Libros
+FOR EACH ROW
+
+BEGIN
+
+IF(cantidad_libro_autor(ID_Autor) > 5 && año_libro(ID_Libro) > 50)
+THEN
+RETURN "El libro es un clasico"
+END IF;
+
+END //
+DELIMITER;
+
+
+
