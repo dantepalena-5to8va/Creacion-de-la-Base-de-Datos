@@ -1,0 +1,128 @@
+1 -
+DELIMITER //
+CREATE PROCEDURE prestamos_x_cliente(IN IDUsuario INT, N INT)
+
+BEGIN
+
+DECLARE X INT
+
+WHILE X <= N DO
+SELECT FechaPrestamo, FechaDevolucion FROM Prestamos WHERE UsuarioID = IDUsuario
+SET X = X + 1
+END WHILE;
+END //
+DELIMITER;
+
+
+2 -
+DELEMITER //
+CREATE PROCEDURE libros__harryp()
+
+BEGIN
+
+REPEAT
+SELECT LibroID FROM Libros
+
+UNTIL Titulo REGEXP ("Harry Potter")
+END REPEAT
+
+END //
+DELIMITER;
+
+
+3 -
+DELIMITER //
+CREATE PROCEDURE cantidad_prestamos_x_cliente()
+
+BEGIN
+
+looop: LOOP
+
+SELECT U.UsuarioID, COUNT(P.UsuarioID) FROM Usuarios U JOIN Prestamos P ON U.UsuarioID = P.UsuarioID
+
+IF (UsuarioID NOT EXIST)
+THEN
+LEAVE looop
+
+END LOOP´;
+END //
+
+DELIMTER;
+
+
+4 -
+DELIMITER //
+CREATE FUNCTION clasico(ID_Libro INT)
+RETURNS INT
+
+BEGIN
+
+IF((SELECT DATEDIFF(years, AnioPublicacion, CURDATE())FROM Libros WHERE LibroID = ID_Libro) > 50)
+THEN
+RETURN "clasico"
+ELSE
+RETURN "clasicon't"
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE PROCEDURE clasico_clasicon't(ID_Libro INT)
+
+BEGIN
+
+DECLARE N INT
+SET N = COUNT(Libros)
+
+DECLARE X INT
+SET X = 0
+WHILE X <= N
+
+SELECT Titulo, clasico(ID_Libro) FROM Libros
+SET X = X + 1
+
+END WHILE;
+END //
+DELIMITER;
+
+
+5 -
+DELIMITER //
+CREATE FUNCTION cantidad_prestamos(ID_Libro INT)
+RETURNS INT
+
+BEGIN
+DECLARE cant INT
+
+SELECT COUNT(LibroID) INTO cant FROM Prestamos WHERE LibroID = ID_Libro
+RETURN cant
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE PROCEDURE libros_prestamos()
+
+BEGIN
+
+looop : LOOP
+
+
+SELECT Titulo, cantidad_prestamos(LibroID) FROM Libros
+
+IF(LibroID NOT EXIST)
+THEN
+LEAVE looop
+END LOOP;
+END //
+DELIMITER;
+
+
+6 -
+
+
+
+
+
+
+
