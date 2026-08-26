@@ -43,8 +43,9 @@ SELECT U.UsuarioID, COUNT(P.UsuarioID) FROM Usuarios U JOIN Prestamos P ON U.Usu
 IF (UsuarioID NOT EXIST)
 THEN
 LEAVE looop
+END IF;
 
-END LOOP´;
+END LOOP;
 END //
 
 DELIMTER;
@@ -67,7 +68,7 @@ END //
 DELIMITER;
 
 DELIMITER //
-CREATE PROCEDURE clasico_clasicon't(ID_Libro INT)
+CREATE PROCEDURE clasico_clasicon't(IN ID_Libro INT)
 
 BEGIN
 
@@ -107,22 +108,160 @@ BEGIN
 
 looop : LOOP
 
-
 SELECT Titulo, cantidad_prestamos(LibroID) FROM Libros
 
 IF(LibroID NOT EXIST)
 THEN
 LEAVE looop
+END IF;
+
 END LOOP;
 END //
 DELIMITER;
 
 
 6 -
+DELIMITER //
+CREATE FUNCTION dias_prestamo(IDPrestamo INT)
+RETURNS INT
+
+BEGIN
+DECLARE dias INT
+
+SELECT DATEDIFF(days, FechPrestamo, FechaDevolucion) INTO dias FROM Prestamos WHERE PrestamoID = IDPrestamo
+
+RETURN dias
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE PROCEDURE prestamos14()
+
+BEGIN
+DECLARE X INT
+SET X = COUNT(PrestamoID)
+
+DECLARE N INT
+SET N = 0
+
+IF(dias_prestamo(IDPrestamo) > 14)
+THEN
+SELECT PrestamoID FROM Prestamos
+END IF;
+
+END //
+DELIMITER;
 
 
+7 -
+USE biblioteca
+
+CREATE TABLE ResumenLibros(ResumenLID INT PRIMARY KEY AUTO_INCREMENT, IDLibro INT, Titulo VARCHAR(255), IDAutor INT,
+NombreA VARCHAR(255), CantidadP INT, FOREING KEY IDLibro REFERENCES Libros(LibroID), FOREING KEY IDAutor REFERENCES Autor(AutorID))
+
+DELIMITER //
+CREATE FUNCTION cantidad_prestamos(ID_Libro INT)
+RETURNS INT
+
+BEGIN
+DECLARE cant INT
+
+SELECT COUNT(LibroID) INTO cant FROM Prestamos WHERE LibroID = ID_Libro
+RETURN cant
+
+END //
+DELIMITER
+
+DELIMITER //
+CREATE PROCEDURE crear_resumen AS
+@IDLibro
+@IDAutor
+
+BEGIN
+
+loooooop : LOOP
+IF (IDLibro NOT EXIST OR IDAutor NOT EXIST)
+THEN
+LEAVE loooooop
+ELSE
+INSERT INTO ResumenLibros
+VALUES(ResumenLID, @IDLibro, (SELECT Titulo FROM Libros WHERE LibroID = @IDLibro), @IDAutor,
+(SELECT Nombre FROM Autores WHERE AutorID = @IDAutor), (cantidad_prestamos(@IDLibro))
+END IF;
+END LOOP
+
+END //
+DELIMITER;
 
 
+8 -
+ALTER TABLE Prestamos ADD COLUMN perdido VARCHAR(20)
+DELIMITER //
+CREATE PROCEDURE actualizar_prestamos()
+
+BEGIN
+WHILE (DATEDIFF(days, FechaPrestamo, FechaDevolucion) > 15) DO
+
+UPDATE Prestamos SET perdido = "SI"
+END WHILE;
+
+END //
+DELIMITER;
 
 
+9 -
+DELIMITER //
+CREATE PROCEDURE analizar_libro(IDLibro INT)
+
+BEGIN
+SELECT Titulo, AutorID, GeneroID, AnioPublicacion, ISBN FROM Libros WHERE LibroID = IDLibro
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE PROCEDURE aanalizar_libros()
+
+BEGIN
+looooooooooop : LOOP
+
+IF(IDLibro NOT EXIST)
+THEN
+LEAVE LOOP
+ELSE
+SELECT analizar_libro(IDLibro INT)
+END IF;
+
+END LOOP
+END //
+DELIMITER;
+
+
+10 -
+USE biblioteca
+
+CREATE TABLE ReporteUsuarios(ReporteID INT PRIMARY KEY AUTO_INCREMENT, NombreU VARCHAR(255), CantidadP INT,
+UltimoP DATE, PromedioP DECIMAL(10,2), Clasificacion VARCHAR(255))
+
+DELIMITER //
+CREATE PROCEDURE generar_reporte_biblioteca()
+
+BEGIN
+
+DECLARE nombre VARCHAR(255)
+DECLARE cantP INT
+DECLARE ultimo DATE
+DECLARE promP DECIMAL(10,2)
+DECLARE clasif VARCHAR(255)
+
+LooP3 : LOOP
+
+SET nombre = SELECT Nombre FROM Usuarios
+SET cantp = (SELECT COUNT(P.UsuarioID) FROM Prestamos P JOIN Usuarios U ON P.UsuarioID = U.UsuarioID)
+SET ultimop = (SELECT P.FechaPrestamo FROM Prestamos P JOIN Usuarios U ON P.UsuarioID = U.UsuarioID ORDER BY FechaPrestamo DESC LIMIT 1)
+SET promp = (SELECT ABG(DATEDIFF(days, P.FechaPrestamo, P.FechaDevolucion)) FROM Prestamos P JOIN Usuarios U ON P.UsuarioID = U.UsuarioID)
+
+
+INSERT INTO ReporteUsuarios
+VALUES(, 
 
