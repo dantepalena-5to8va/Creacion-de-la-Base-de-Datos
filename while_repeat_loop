@@ -253,15 +253,41 @@ DECLARE cantP INT
 DECLARE ultimo DATE
 DECLARE promP DECIMAL(10,2)
 DECLARE clasif VARCHAR(255)
+DECLARE id INT
 
 LooP3 : LOOP
 
+IF(UsuarioID NOT EXIST)
+THEN
+LEAVE LooP3
+ELSE
 SET nombre = SELECT Nombre FROM Usuarios
 SET cantp = (SELECT COUNT(P.UsuarioID) FROM Prestamos P JOIN Usuarios U ON P.UsuarioID = U.UsuarioID)
 SET ultimop = (SELECT P.FechaPrestamo FROM Prestamos P JOIN Usuarios U ON P.UsuarioID = U.UsuarioID ORDER BY FechaPrestamo DESC LIMIT 1)
-SET promp = (SELECT ABG(DATEDIFF(days, P.FechaPrestamo, P.FechaDevolucion)) FROM Prestamos P JOIN Usuarios U ON P.UsuarioID = U.UsuarioID)
+SET promP = (SELECT ABG(DATEDIFF(days, P.FechaPrestamo, P.FechaDevolucion)) FROM Prestamos P JOIN Usuarios U ON P.UsuarioID = U.UsuarioID)
 
+IF cantP == 1
+THEN
+SET clasif = "Nuevo"
+ELSE
+IF cantP > 1 && cantP <= 5
+THEN
+SET clasif = "Frecuente"
+ELSE
+IF cantP > 5
+THEN 
+SET clasif = "Muy frecuente"
+END IF;
+END IF;
+END IF;
 
 INSERT INTO ReporteUsuarios
-VALUES(, 
+VALUES(id, nombre, cantP, ultimo, promP, clasif)
+SET id = id+1
+END IF;
+
+END LOOP
+END //
+DELIMITER;
+
 
