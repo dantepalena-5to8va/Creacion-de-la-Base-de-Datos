@@ -1,0 +1,71 @@
+1 -
+DELIMITER //
+CREATE CURSOR subtotal_productos FOR
+  SELECT precio, stock FROM Productos
+
+  DECLARE @precio DECIMAL(7,2)
+  DECLARE @stock INT
+
+  OPEN subtotal_productos
+  FETCH NEXT FROM subtotal_productos INTO @precio, @stock
+    BEGIN
+      DECLARE CONTINUE HANDLER FRO NOT FOUND LooP Boolean = false
+        WHILE LooP
+          BEGIN
+            DECLARE subtotal = 0 DECIMAL(10,2)
+              SELECT precio AS "Precio", stock AS "Stock", subtotal AS "Subtotal"
+              SET subtotal = subtotal + (stock * precio)
+            FETCH NEXT FROM subtotal INTO @precio, @stock
+          END
+        END WHILE
+    END
+CLOSE subtotal_productos
+DEALLOCATE nombre_cursor;
+
+DELIMITER //
+
+
+DELIMITER //
+CREATE PROCEDURE listar_productos()
+
+BEGIN
+
+SELECT Nombre, subtotal_producto FROM Productos
+
+END //
+DELIMITER;
+
+2 -
+DELIMITER //
+CREATE CURSOR datos_provincia
+SELECT nombre , capital, poblacion FROM Provincias
+
+DECLARE @nombre VARCHAR(60)
+DECLARE cap VARCHAR(60)
+DECLARE pobla INT
+
+OPEN datos_provincia
+FETCH NEXT FROM datos_provincia INTO @nombre, cap, pobla
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOT FOUND LOoP2 Boolean = false
+WHILE LOoP2
+BEGIN
+SELECT "Provincia: ", @nombre " | "
+|TERMINAR DESPUES|
+
+
+DELIMITER //
+CREATE PROCEDURE datos_provincia()
+
+BEGIN
+
+SELECT "Provincia: ", nombre, " | Capital: ", capital, " | Poblacion: ", poblacion FROM Provincias
+
+END //
+DELIMITER;
+
+
+
+
+
+      
