@@ -1,12 +1,14 @@
 1 -
-DELIMITER //
-CREATE CURSOR subtotal_productos FOR
+DECLARE CURSOR subtotal_productos FOR
   SELECT precio, stock FROM Productos
 
   DECLARE @precio DECIMAL(7,2)
   DECLARE @stock INT
 
   OPEN subtotal_productos
+CREATE PROCEDURE listar_productos() //
+BEGIN
+
   FETCH NEXT FROM subtotal_productos INTO @precio, @stock
     BEGIN
       DECLARE CONTINUE HANDLER FRO NOT FOUND LooP Boolean = false
@@ -19,53 +21,244 @@ CREATE CURSOR subtotal_productos FOR
           END
         END WHILE
     END
-CLOSE subtotal_productos
-DEALLOCATE nombre_cursor;
-
-DELIMITER //
-
-
-DELIMITER //
-CREATE PROCEDURE listar_productos()
-
-BEGIN
-
-SELECT Nombre, subtotal_producto FROM Productos
-
 END //
-DELIMITER;
+CLOSE subtotal_productos
+DEALLOCATE subtotal_productos;
 
 2 -
-DELIMITER //
-CREATE CURSOR datos_provincia
-SELECT nombre , capital, poblacion FROM Provincias
+DECLARE CURSOR datos_provincias FOR
+SELECT nombre, capital, poblacion FROM Provincias
 
 DECLARE @nombre VARCHAR(60)
 DECLARE cap VARCHAR(60)
 DECLARE pobla INT
+DECLARE texto VARCHAR(255)
 
-OPEN datos_provincia
-FETCH NEXT FROM datos_provincia INTO @nombre, cap, pobla
+OPEN datos_provincias
+CREATE PROCEDURE dato_provincia() //
+BEGIN
+FETCH NEXT FROM datos_provincias INTO @nombre, cap, pobla
 BEGIN
 DECLARE CONTINUE HANDLER FOR NOT FOUND LOoP2 Boolean = false
 WHILE LOoP2
 BEGIN
-SELECT "Provincia: ", @nombre " | "
-|TERMINAR DESPUES|
+
+SET texto = CONCAT("Provincia: ", @nombre, " | Capital: ", cap, " | Poblacion: ", pobla)
+SELECT texto
+
+FETCH NEXT FROM datos_provincias INTO @nombre, cap, pobla
+END
+END WHILE
+END
+END //
+CLOSE datos_provinciass
+DEALLOCATE datos_provincias
 
 
-DELIMITER //
-CREATE PROCEDURE datos_provincia()
+3 -
+DECLARE CURSOR zero_stock FOR
+SELECT * FROM Productos
 
+DECLARE @id INT
+DECLARE descrip VARCHAR(60)
+DECLARE marc VARCHAR(40)
+DECLARE preci DECIMAL(7,2)
+DECLARE stok INT
+
+OPEN zero_stock
+CREATE PROCEDURE cero_stok() //
+BEGIN
+FETCH NEXT FROM zero_stock INTO @id, descrip, marc, preci, stok
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOT FOUND LoOP3 Boolean = false
+WHILE LoOP3
 BEGIN
 
-SELECT "Provincia: ", nombre, " | Capital: ", capital, " | Poblacion: ", poblacion FROM Provincias
+IF stok == 0
+THEN
+SELECT @id AS "ID", descrip AS "Descripcion", marc AS "Marca", preci AS "Precio", stok AS "Stock" 
 
+FETCH NEXT FROM zero_stock INTO @id, descrip, marc, preci, stok
+END
+END WHILE
+END
 END //
-DELIMITER;
+CLOSE zero_stock
+DEALLOCATE zero_stock
 
 
+4 -
+DECLARE CURSOR cursor_clasificador FOR
+SELECT descripcion, precio FROM Productos
+
+DECLARE descrip VARCHAR(60)
+DECLARE valor DECIMAL(7,2)
+
+OPEN cursor_clasificador
+CREATE PROCEDURE clasificador_productos() //
+BEGIN
+FETCH NEXT FROM cursor_clasificador INTO descrip, valor
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOT FOUND LooP4 Boolean = false
+WHILE LooP4
+BEGIN
+
+SELECT CONCAT("Producto: ", descrip)
+SELECT CONCAT("Precio: ", valor)
+IF (valor < 10000)
+THEN SELECT CONCAT("Categoria: BARATO")
+ELSE
+IF (valor > 10000 && < 50000)
+THEN SELECT CONCAT("Categoria: MEDIO")
+ELSE
+IF (valor > 50000)
+THEN SELECT CONCAT("Categoria: CARO")
+END IF
+END IF
+END IF
+
+FETCH NEXT FROM cursor_clasificador INTO descrip, valor
+END
+END WHILE
+END
+END //
+CLOSE cursor_clasificador
+DEALLOCATE cursor_clasificador
 
 
+5 -
+DECLARE CURSOR valor_stocksss FOR
+SELECT precio, stock FROM Productos
 
-      
+DECLARE @precio DECIMAL(7,2)
+DECLARE @stock INT
+DELCARE total DECIMAL(10,2)
+
+OPEN valor_stocksss
+CREATE PROCEDURE valor_stock() //
+BEGIN
+FETCH NEXT FROM valor_stocksss INTO @precio, @stock
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOT FOUND LooP Boolean = false
+WHILE LooP
+BEGIN
+
+DECLARE subtotal = 0 DECIMAL(10,2)
+SELECT precio AS "Precio", stock AS "Stock", subtotal AS "Subtotal"
+SET subtotal = subtotal + (stock * precio)
+SET total += subtotal
+
+FETCH NEXT FROM valor_stocksss INTO @precio, @stock
+END
+END WHILE
+
+SELECT total AS "Valor_Inventario"
+
+END
+END //
+CLOSE valor_stocksss
+DEALLOCATE valor_stocksss
+
+
+6 -
+DECLARE CURSOR cursor_aumentador FOR
+SELECT precio FROM Productos
+
+DECLARE valor DECIMAL(7,2)
+
+OPEN cursor_aumentador
+CREATE PROCEDURE aumentar_precio() //
+BEGIN
+FETCH NEXT FROM cursor_aumentador INTO valor
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOT FOUND LoOp6 Boolean = false
+WHILE LoOp6
+BEGIN
+
+IF valor < 10000
+THEN
+UPDATE Productos SET precio = valor * 1.20
+ELSE
+UPDATE Productos IF precio >= 10000
+THEN
+UPDATE Productos SET precio = valor * 1.10
+END IF
+END IF
+
+FETCH NEXT FROM cursor_aumentador INTO valor
+END
+END WHILE
+END
+END //
+CLOSE cursor_aumentador
+DEALLOCATE cursor_aumentador
+
+
+7 -
+DECLARE CURSOR cursor_actualizador FOR
+SELECT stock FROM Productos
+
+DECLARE stok INT
+
+OPEN cursor_actualizador
+CREATE PROCEDURE actualizar_stock() //
+BEGIN
+FETCH NEXT FROM cursor_actualizador INTO stok
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOT FOUND LoOP7 Boolean = false
+WHILE LoOP7
+BEGIN
+
+IF stok < 5
+THEN
+UPDATE Productos SET stock = stock + 10
+ELSE
+IF stok >= 5 AND stok < 20
+THEN
+UPDATE Productos SET stock = stock + 5
+END IF
+END IF
+
+FETCH NEXT FROM cursor_actualizar INTO stok
+END
+END WHILE
+END
+END //
+
+CLOSE cursor_actualizador
+DEALLOCATE cursor_actualizador
+
+
+8 -
+DECLARE CURSOR cursor_listador FOR
+SELECT id, cliente, producto, cant, fecha FROM Compras 
+
+DECLARE @id INT
+DECLARE @cliente INT
+DECLARE @producto INT
+DECLARE @cant INT
+DECLARE @fecha DATE
+
+OPEN cursor_listador
+CREATE PROCEDURE listar() //
+BEGIN
+FETCH NEXT FROM cursor_listador INTO @id, @cliente, @producto, @cant, @fecha
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOT FOUND ULoop Boolean = false
+WHILE ULoop
+BEGIN
+
+SELECT CONCAT("Compra #", @id)
+SELECT CONCAT("Cliente: ", (SELECT nombre FROM Clientes WHERE id = @cliente)
+SELECT CONCAT("Producto: ", (SELECT decripcion FROM Productos WHERE id = @producto)
+SELECT CONCAT("Cantidad: ", @cant)
+SELECT CONCAT("Fecha: ", @fecha)
+
+FETCH NEXT FROM cursor_listador INTO @id, @cliente, @producto, @cant, @fecha
+END
+END WHILE
+END
+END //
+
+CLOSE cursor_listador
+DALLOCATE cursor_listador
