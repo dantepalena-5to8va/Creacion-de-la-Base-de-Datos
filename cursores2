@@ -1,0 +1,58 @@
+1 -
+DECLARE CURSOR cursor_ortografia FOR
+SELECT nombre FROM Clientes
+
+DECLARE @nombre VARCHAR(255)
+
+OPEN cursor_ortografia
+
+FETCH NEXT FROM cursor_ortografia INTO @nombre
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOY FOUND LoOP10 Boolean = false
+WHILE LoOP10
+BEGIN
+
+UPDATE Clientes SET nombre = UPPER(SUBTRING(@nombre, 0, 1))
+
+FETCH NEXT FROM cursor_ortografia INTO @nombre
+END
+END WHILE
+END
+
+CLOSE cursor_ortografia
+DEALLOCATE cursor_ortografia
+
+
+2 - 
+DECALRE CURSOR subtotal_x_region FOR
+SELECT poblacion FROM Provincias
+
+DECLARE pobla INT
+
+OPEN subtotal_x_region
+
+FECTH NEXT FROM subtotal_x_region INTO pobla
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOT FOUND LOoP11 Boolean = false
+WHILE LOoOP11
+BEGIN
+
+DECLARE subtotalR INT
+SET subtotalR = (SELECT poblacion FROM Provincias GROUP BY region DESC)
+
+|| TERMINAR ||
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
