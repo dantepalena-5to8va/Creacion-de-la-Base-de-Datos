@@ -25,13 +25,14 @@ DEALLOCATE cursor_ortografia
 
 2 - 
 DECALRE CURSOR subtotal_x_region FOR
-SELECT poblacion FROM Provincias
+SELECT poblacion, region FROM Provincias
 
 DECLARE pobla INT
+DECLARE reg VARCHAR(255)
 
 OPEN subtotal_x_region
 
-FECTH NEXT FROM subtotal_x_region INTO pobla
+FECTH NEXT FROM subtotal_x_region INTO pobla, reg
 BEGIN
 DECLARE CONTINUE HANDLER FOR NOT FOUND LOoP11 Boolean = false
 WHILE LOoOP11
@@ -40,12 +41,53 @@ BEGIN
 DECLARE subtotalR INT
 SET subtotalR = (SELECT poblacion FROM Provincias GROUP BY region DESC)
 
-|| TERMINAR ||
+SELECT reg AS "Region", subtotalR AS "Poblacion" ORDER BY subtotalR DESC
+
+FECTH NEXT FROM subtotal_x_region INTO pobla, reg
+END
+END WHILE
+END
+
+CLOSE subtotal_x_region
+DEALLOCATE subtotal_x_region
 
 
+3 -
+DECLARE CURSOR cursor_actualizador2 FOR
+SELECT stock, decripcion FROM Productos
+
+DECLARE stok INT
+DECLARE descrip VARCHAR(255)
+DECLARE hola_mensaje VARCHAR(255)
 
 
+OPEN cursor_actualizador2
 
+FETCH NEXT FROM cursor_actualizador2 INTO stok, descrip
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOT FOUND LoOP12 Boolean = false
+WHILE LoOP12
+BEGIN
+
+IF stok < 5
+THEN
+UPDATE Productos SET stock = stock + 20 WHERE descripcion = descrip
+SET hola_mensaje = CONCAT("El producto: ", descrip, " fue repuesto")
+SELECT hola_mensaje
+
+INSERT INTO Auditoria VALUES(id, stock, descripcion, CURDATE())
+END IF
+
+FETCH NEXT FROM cursor_actualizador2 INTO stok, descrip
+END
+END WHILE
+END
+
+CLOSE cursor_actualizador2
+DEALLOCATE cursor_actualizador2
+
+
+4 -
 
 
 
