@@ -88,13 +88,102 @@ DEALLOCATE cursor_actualizador2
 
 
 4 -
+CREATE FUNCTION compras_x_cliente(Id INT)
+RETURNS INT
+
+BEGIN
+
+DECLARE total INT
+SELECT COUNT(Com.cliente) INTO total FROM Clientes Cli JOIN Compras Com ON Cli.id = Com.cliente
+WHERE Cli.id = Id GROUP BY Id
+
+RETURN total
+END
+
+CREATE FUNCTION gastado_x_cliente(Id INT)
+RETURNS DECIMAL(10,2)
+
+BEGIN
+DECLARE total DECIMAL(10,2)
+SELECT SUM(Pro.precio * Com.cant) INTO FROM Clientes Cli JOIN Compras Com ON Cli.id = Com.cliente
+JOIN Productos Pro ON Com.producto = Pro.id WHERE Cli.id = Id GROUP BY Id
+
+RETURN total
+END
+
+DECALRE CURSOR cursor_favorito FOR
+SELECT Ciu.id, Ciu.nombre, Cli.id FROM Ciudades Ciu JOIN Clientes Cli ON Ciu.id = Cli.localidad
+
+DECLARE @id INT
+DECLARE nomCi VARCHAR(255)
+DECLARE @id_cli INT
+DECLARE masG VARCHAR(255)
+DECLARE masC VARCHAR(255)
+
+OPEN cursor_favorito
+
+FETCH NEXT FROM cursor_favorito INTO @id, nomCi, @id_cli
+BEGIN
+DECLARE CONTINUE HANDLE FOR NOT FOUND LoOP13 Boolean = false
+WHILE LoOP13
+BEGIN
+
+SET masC = (SELECT Cli.nombre FROM Clientes WHERE compras_x_cliente(@id_cli) = (SELECT COUNT(Com.cliente) FROM Clientes Cli
+JOIN Compras Com ON Cli.id = Com.cliente)
+
+SET masG = (SELECT Cli.nombre FROM Clientes WHERE gastado_x_cliente(@id_cli) = (SELECT SUM(Pro.precio * Com.cant)
+FROM Clientes Cli JOIN Compras Com ON Cli.id = Com.cliente JOIN Productos Pro ON Com.producto = Pro.id)
+
+SELECT nomCi AS "Ciudad", masG AS "Cliente_Mas_Gastado",
+gastado_x_cliente(@id_cli) AS "Total_gastado", masC AS "Cliente_Mas_Comprado",
+compras_x_cliente(@id_cli) AS "Compras_totales"
+
+FETCH NEXT FROM cursor_favorito INTO @id, nomCi, @id_cli
+END
+END WHILE
+END
+
+CLOSE cursor_favorito
+DEALLOCATE cursor_favorito
 
 
+5 -
 
+CREATE FUNCTION gastado_x_cliente(Id INT)
+RETURNS DECIMAL(10,2)
 
+BEGIN
+DECLARE total DECIMAL(10,2)
+SELECT SUM(Pro.precio * Com.cant) INTO FROM Clientes Cli JOIN Compras Com ON Cli.id = Com.cliente
+JOIN Productos Pro ON Com.producto = Pro.id WHERE Cli.id = Id GROUP BY Id
 
+RETURN total
+END
 
+DECLARE CURSOR cursor_provincial FOR
+SELECT Pro.nombre, Cli.id FROM Provincias Pro JOIN Ciudades Ciu ON Pro.id = Ciu.provincia
+JOIN Clientes Cli ON Ciu.id = Cli.localidad
 
+DECLARE @nombre VARCHAR(255)
+DECLARE @id_cl INT
+DECLARE @nombre_cl VARCHAR(255)
 
+OPEN cursor_provincial
 
+FETCH NEXT FROM cursor_provincial INTO @nombre, @id_cl
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOT FOUND LoOP14 Boolean = false
+WHILE LoOP14
+BEGIN
 
+SET @nombre_cl = (SELECT nombre FROM Clientes WHERE id =  @id_cl)
+
+SELECT @nombre AS "Provincia", @nombre_cl AS "Cliente", gastado_x_cliente(@id_cl) AS "Total_gastado"
+
+FETCH NEXT FROM cursor_provincial INTO @nombre, @id_cl
+END
+END WHILE
+END
+
+CLOSE cursor_provincial
+DEALLOCATE cursor_provincial
