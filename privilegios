@@ -1,0 +1,97 @@
+1 - 
+CREATE VIEW usuario_simple AS SELECT id, nombre, apellido FROM Clientes
+
+
+CREATE USER 'administrador' @ 'localhost'
+IDENTIFIED BY '1234admin'
+
+GRANT SELECT
+ON Provincias, Ciudades, usuario_simple
+TO administrado;
+
+
+2 -
+DELIMITER //
+CREATE TRIGGER cont_stock
+BEFORE DELETE ON Productos
+FOR EACH ROW
+
+BEGIN
+IF stock > 0
+THEN
+RAISE EXEPTION "El producto tiene stock"
+END IF;
+
+END //
+DELIMITER;
+
+CREATE VIEW productos_simples AS SELECT descripcion, stock, precio FROM Productos
+
+
+CREATE USER 'empleado' @ 'localhost'
+IDENTIFIED BY '1234emplea'
+
+GRANT SELECT, UPDATE, DELETE, INSERT
+ON productos_simples 
+TO empleado
+
+
+3 -
+CREATE VIEW usuario_compra AS SELECT Clientes.id, Clientes.nombre, Clientes.apellido, Compras.id,
+Compras.fecha, Compras.producto, Compras.cant FROM Clientes JOIN Compras ON
+Clientes.id = Compras.cliente
+
+CREATE USER 'gerente' @ 'localhost'
+IDENTIFIED BY '1234gerent'
+
+GRANT ALL PRIVILEGES
+ON usuario_compra
+TO gerente
+
+
+4 -
+
+REVOKE DELETE
+ON productos_simples
+TO empleado;
+
+
+5 -
+USE practica_3
+
+CREATE TABLE Auditoria_C(Fecha DATE, Tabla VARCHAR(255))
+
+
+6 -
+DELIMITER //
+CREATE TRIGGER observador_productos
+AFTER UPDATE, DELETE, INSERT ON Productos
+FOR EACH ROW
+
+BEGIN
+INSERT INTO Auditoria_C VALUES(CURDATE(), "Producto")
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE TRIGGER observador_clientes
+AFTER UPDATE, DELETE, INSERT ON Clientes
+FOR EACH ROW
+
+BEGIN
+INSERT INTO Auditoria_C VALUES(CURDATE(), "Clientes")
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE TRIGGER observador_compras
+AFTER UPDATE, DELETE, INSERT ON Compras
+FOR EACH ROW
+
+BEGIN
+INSERT INTO Auditoria_C VALUES(CURDATE(), "Compras")
+
+END //
+DELIMITER;
