@@ -1,0 +1,117 @@
+
+USE biblioteca
+
+CREATE TABLE Reservas(LibroID INT, UsuarioID INT, FOREING KEY LibroID REFERENCES Libros(LibroID),
+FOREING KEY UsuarioID REFERENCES Usuarios(UsuarioID))
+
+
+
+1 -
+CREATE VIEW usuarios_simples AS SELECT UsuarioID, Nombre FROM Usuarios
+
+CREATE USER 'Administrador1' @ 'localhost'
+IDENTIFIED BY 'admin123'
+
+GRANT SELECT, UPDATE
+ON Autores, Generos, Libros
+TO Administrador1;
+
+GRANT SELECT
+ON usuarios_simples, Prestamos
+TO Adiministrador1;
+
+GRANT
+
+2 -
+CREATE USER 'Bibliotecario1' @ 'localhost'
+IDENTIFIED BY 'amo_los-libros123'
+
+GRANT SELECT
+ON Libros, Ejemplares, Usuarios, Multas, Reservas
+TO Bibliotecario1
+
+GRANT INSERT
+ON Prestamos, Reservas, Devoluciones
+TO Bibliotecario1
+
+
+
+3 -
+USE biblioteca
+CREATE TABLE Ejemplares(LibroID INT, Estado VARCHAR(255), FOREING KEY (LibroID) REFERENCES Libros(LibroID))
+
+DELIMITER //
+CREATE TRIGGER solo_disponible
+BEFORE INSERT ON Prestamos
+FOR EACH ROW
+
+BEGIN
+IF (SELECT E.Estado FROM Prestamos P JOIN Ejemplares E ON P.LibroID = E.LibroID) != "DISPONIBLE"
+THEN
+RAISE EXEPTION "No se puede prestar, no esta disponible"
+END IF;
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE TRIGGER pres_ejem
+AFTER INSERT ON Prestamos
+FOR EACH ROW
+
+BEGIN
+IF (SELECT E.Estado FROM Prestamos P JOIN Ejemplares E ON P.LibroID = E.LibroID) == "DISPONIBLE"
+THEN
+UPDATE Ejemplares SET Estado = "PRESTADO"
+END IF;
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE TRIGGER devo_ejem
+AFTER  ON
+FOR EACH ROW
+
+BEGIN 
+
+
+
+END //
+DELIMITER;
+
+
+DELIMTER //
+CREATE TRIGGER con_ejem
+BEFORE DELETE ON Libros
+FOR EACH ROW
+
+BEGIN
+IF LibroID IN (SELECT LibroID FROM Ejemplares)
+THEN
+RAISE EXEPTION "El libro tiene ejemplares disponible"
+END IF;
+
+END //
+DELIMTER;
+
+
+DELIMITER //
+CREATE TRIGGER ejem_historicos
+BEFORE DELETE ON Libros
+FOR EACH ROW
+
+BEGIN
+
+END //
+DELIMITER;
+
+
+4 -
+USE biblioteca
+CREATE TABLE Multas(UsuarioID INT, PrecioMulta DECIMAL(10,2), FOREING KEY (UsuarioID) REFERENCES Usuarios(UsuarioID))
+
+
+DELIMITER //
+CREATE FUNCTION crear_multa(FechaDevolucion DATE)
+
