@@ -1,10 +1,10 @@
-
 USE biblioteca
 
 CREATE TABLE Reservas(LibroID INT, UsuarioID INT, FOREING KEY LibroID REFERENCES Libros(LibroID),
 FOREING KEY UsuarioID REFERENCES Usuarios(UsuarioID))
 
-
+CREATE TABLE Devoluciones(LibroID INT, UsuarioID INT, FechaDevolucion DATE, FOREING KEY LibroID
+REFERENCES Libros(LibroID), FOREING KEY UsuarioID REFERENCES Usuarios(UsuarioID)) 
 
 1 -
 CREATE VIEW usuarios_simples AS SELECT UsuarioID, Nombre FROM Usuarios
@@ -20,7 +20,10 @@ GRANT SELECT
 ON usuarios_simples, Prestamos
 TO Adiministrador1;
 
-GRANT
+GRANT UPDATE
+ON Ejemplares, Multas, Reservas
+TO Administrador1;
+
 
 2 -
 CREATE USER 'Bibliotecario1' @ 'localhost'
@@ -34,11 +37,24 @@ GRANT INSERT
 ON Prestamos, Reservas, Devoluciones
 TO Bibliotecario1
 
+DELIMITER //
+CREATE TRIGGER NoMasde3
+BEFORE INSERT ON Prestamos
+FOR EACH ROW
+
+BEGIN
+IF COUNT(SELECT UsuarioID FROM Prestamos) = 3 OR UsuarioID IN(SELECT UsuarioID FROM Multas)
+THEN
+RAISE EXEPTION "Los usuarios no pueden hacer prestamos si tienen mas de 3 libros prestados o si tienen alguna multa sin pagar"
+END IF;
+
+END //
+DELIMITER;
 
 
 3 -
 USE biblioteca
-CREATE TABLE Ejemplares(LibroID INT, Estado VARCHAR(255), FOREING KEY (LibroID) REFERENCES Libros(LibroID))
+CREATE TABLE Ejemplares(IDLibro INT, Estado VARCHAR(255), FOREING KEY (LibroID) REFERENCES Libros(LibroID))
 
 DELIMITER //
 CREATE TRIGGER solo_disponible
@@ -46,7 +62,7 @@ BEFORE INSERT ON Prestamos
 FOR EACH ROW
 
 BEGIN
-IF (SELECT E.Estado FROM Prestamos P JOIN Ejemplares E ON P.LibroID = E.LibroID) != "DISPONIBLE"
+IF (SELECT E.Estado FROM Prestamos P JOIN Ejemplares E ON P.LibroID = E.IDLibro) != "DISPONIBLE"
 THEN
 RAISE EXEPTION "No se puede prestar, no esta disponible"
 END IF;
@@ -60,9 +76,9 @@ AFTER INSERT ON Prestamos
 FOR EACH ROW
 
 BEGIN
-IF (SELECT E.Estado FROM Prestamos P JOIN Ejemplares E ON P.LibroID = E.LibroID) == "DISPONIBLE"
+IF (SELECT E.Estado FROM Prestamos P JOIN Ejemplares E ON P.LibroID = E.IDLibro) == "DISPONIBLE"
 THEN
-UPDATE Ejemplares SET Estado = "PRESTADO"
+UPDATE Ejemplares SET Estado = "PRESTADO" WHERE IDLibro = (SELECT LibroID FROM Prestamos)
 END IF;
 
 END //
@@ -70,16 +86,17 @@ DELIMITER;
 
 DELIMITER //
 CREATE TRIGGER devo_ejem
-AFTER  ON
+AFTER INSERT ON Devoluciones
 FOR EACH ROW
 
 BEGIN 
-
-
+IF (SELECT E.Estado FROM Devoluciones D JOIN Ejemplares E ON D.LibroID = E.IDLibro) == "PRESTADO"
+THEN
+UPDATE Ejemplares SET Estado = "DISPONIBLE" WHERE IDLibro = (SELECT LibroID FROM Prestamos)
+END IF;
 
 END //
 DELIMITER;
-
 
 DELIMTER //
 CREATE TRIGGER con_ejem
@@ -87,7 +104,7 @@ BEFORE DELETE ON Libros
 FOR EACH ROW
 
 BEGIN
-IF LibroID IN (SELECT LibroID FROM Ejemplares)
+IF LibroID IN (SELECT IDLibro FROM Ejemplares)
 THEN
 RAISE EXEPTION "El libro tiene ejemplares disponible"
 END IF;
@@ -95,13 +112,16 @@ END IF;
 END //
 DELIMTER;
 
-
 DELIMITER //
 CREATE TRIGGER ejem_historicos
-BEFORE DELETE ON Libros
+BEFORE DELETE ON Ejemplares
 FOR EACH ROW
 
 BEGIN
+IF IDLibro IN(SELECT LibroID FROM Prestamos)
+THEN
+RAISE EXEPTION "El ejemplar tiene prestamos historicos"
+END IF;
 
 END //
 DELIMITER;
@@ -114,4 +134,151 @@ CREATE TABLE Multas(UsuarioID INT, PrecioMulta DECIMAL(10,2), FOREING KEY (Usuar
 
 DELIMITER //
 CREATE FUNCTION crear_multa(FechaDevolucion DATE)
+RETURNS DECIMAL(10,2)
 
+BEGIN
+DECLARE fechaD DATE
+SET fechaD = FechaDevolucion
+DECLARE multa DECIMAL(10,2)
+
+IF(fechaD > CURDATE())
+THEN
+SET multa = multa + 1000
+INSERT INTO Multas VALUES((SELECT UsuarioID FROM Prestamos WHERE FechaDevolucion = fechaD), multa)
+RETURN multa
+END IF;
+
+END //
+DELIMITER;
+
+
+5 -
+DELIMITER //
+CREATE FUNCTION verificacion1(UsuarioID INT, IDLibro INT)
+RETURNS VARCHAR(255)
+
+BEGIN
+IF(UsuarioID IN(SELECT UsuarioID FROM Usuarios) AND IDLibro IN(SELECT IDLibro FROM Ejemplares))
+THEN
+RETURN "existen"
+ELSE
+RETURN "no"
+END IF;
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE FUNCTION verificacion2(IDLibro INT)
+RETURNS VARCHAR(255)
+
+BEGIN
+DECLARE ejemplar INT
+SET ejemplar = IDLibro
+
+IF (SELECT Estado FROM Ejemplares WHERE IDLibro = ejemplar) == "DISPONIBLE"
+THEN
+RETURN "disponible"
+ELSE
+RETURN "no"
+END IF;
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE FUNCTION verificacion3(UsuarioID INT)
+RETURNS VARCHAR(255)
+
+BEGIN
+DECLARE usuario INT
+SET usuario = UsuarioID
+
+IF COUNT(SELECT UsuarioID FROM Prestamos WHERE UsuarioID = usuario)) < 3
+THEN
+RETURN "menos"
+ELSE
+RETURN "mas"
+END IF;
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE FUNCTION verificacion4(UsuarioID)
+RETURNS VARCHAR(255)
+
+BEGIN
+DECLARE usuario INT
+SET usuario = UsuarioID
+
+IF usuario NOT IN(SELECT UsuarioID FROM Multas)
+THEN
+RETURN "puede"
+ELSE
+RETURN "no_puede"
+END IF;
+
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE PROCEDURE RegistrarPrestamo (IN UsuarioID INT, IDLibro INT)
+
+BEGIN
+
+IF verificacion1(UsuarioID, IDLibro) == "existen" AND verificacion2(IDLibro) == "disponible" AND
+verificacion3(UsuarioID) == "menos" AND verificacion4(UsuarioID) == "puede"
+THEN
+INSERT INTO Prestamos VALUES(PrestamoID, IDLibro, UsuarioID, CURDATE(), '2026-10-21')
+END IF;
+
+END //
+DELIMITER;
+
+
+6 -
+DECLARE CURSOR PrestamosEnTiempo FOR
+SELECT UsuarioID FROM Usuarios
+
+DECLARE usuario INT
+
+OPEN PrestamosEnTiempo
+CREATE PROCEDURE PrestamoTiempo(Inicio DATE, Final DATE)
+BEGIN
+
+SET Inicio = '2025-08-20'
+SET Final = CURDATE()
+
+FETCH NEXT FROM PrestamosEnTiempo INTO usuario
+BEGIN
+DECLARE CONTINUE HANDLER FOR NOT FOUND LoOP21 Boolean = false
+WHILE LoOP21
+BEGIN
+
+DECLARE cantP INT
+SET cantP = COUNT(SELECT UsuarioID FROM Prestamos WHERE UsuarioID = usuario AND FechaDevolucion < Final)
+
+DECLARE prestaA INT
+SET prestaA = COUNT(SELECT UsuarioID FROM Prestamos WHERE UsuarioID = usuario AND FechaDevolcion > Final)
+
+DECLARE devoluA INT
+SET devoluA = COUNT(SELECT UsuarioID FROM Multas WHERE UsuarioID = usuario)
+
+DECLARE diasAtra INT
+SET diasAtra = SUM(DATEDIFF(days,  |||||| TERMINAR |||||||
+
+DECLARE importe DECIMAL(10,2)
+SET importe = SUM(SELECT PrecioMulta FROM Multas WHERE UsuarioID = usuario)
+
+SELECT usuario AS 'UsuarioID', cantP AS 'Cantidad_Prestamos', prestaA AS 'Prestamos_Activos', devoluA AS 'Devoluciones_Atrasadas",
+diasAtra AS 'TotaldeDiasAtrasados", importe AS 'ImporteTotal'
+
+FECTH NEXT FROM PrestamosEnTiempo INTO usuario
+END
+END WHILE
+END
+END
+
+CLOSE PrestamosEnTiempo
+DEALLOCATE PrestamosEnTiempo
