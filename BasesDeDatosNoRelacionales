@@ -1,6 +1,6 @@
 --Estructura
 
-libreria.liros {
+db.libreria.liros {
 id : 0,
 titulo : "nombre_libro",
 anio : 0000,
@@ -9,7 +9,7 @@ genero : [ "generoPrincipal"], ["generoSecundario"],
 disponible : true
 }
 
-libreria.autores {
+db.libreria.autores {
 id : 0,
 nombre : "nombre_autor",
 apellido : "apellido_autor",
@@ -17,23 +17,101 @@ edad : 00,
 localidad : "nombre_localidad"
 }
 
-
-libreria.libros.insertMany ([
+-----INSERTAR
+db.libreria.libros.insertMany ([
 {
-id : 1,
-titulo : "Luna de Pluton",
-anio : 2010,
-autor : "Dross",
-genero : ["Horror", "Drama"],
-disponible : true
+  id : 1,
+  titulo : "Luna de Pluton",
+  anio : 2010,
+  autor : "Dross",
+  genero : ["Horror", "Drama"],
+  disponible : true
 },
 {
-id : 2,
-titulo : "El Eternauta",
-anio : 1999,
-autor : "Pepe",
-genero : ["Ciencia Ficcion", "Horror"],
-disponible : false
+  id : 2,
+  titulo : "El Eternauta",
+  anio : 1999,
+  autor : "Pepe",
+  genero : ["Ciencia Ficcion", "Horror"],
+  disponible : false
 },
 {
+  id : 3,
+  titulo : "Las Flipantes aventuras del asombroso niño decimo",
+  anio : 2020,
+  autor : "Sili",
+  genero : ["Accion", "Comedia"],
+  disponible : true
+},
+{
+  id : 4,
+  titulo : "Don Juan y sus globos",
+  anio : 1980,
+  autor : "Juan Perez",
+  genero : ["Comedia", "Drama"],
+  disponible : true
+},
+{
+  id : 5,
+  titulo : "Las Bizarras Aventuras de Joaquin",
+  anio : 2020,
+  autor : "Javier",
+  genero : ["Aventura", "Drama"],
+  disponible : true
+},
+{
+  id : 6,
+  titulo : "Franco Rompas",
+  anio : 2000,
+  autor : "Lucas",
+  genero : ["Comedia", "Drama"],
+  disponible : false
+},
+{
+  id : 7,
+  titulo : "Loteria 777",
+  anio : 1977,
+  autor : "Julio Ludopata",
+  genero : ["Comedia", "Accion"],
+  disponible : false
+},
+{
+  id : 8,
+  titulo : "Familia Mafiosa",
+  anio : 1975,
+  autor : "Pedro",
+  genero : ["Drama", "Accion"],
+  disponible : true
+},
+{
+  id : 9,
+  titulo : "La Niebla",
+  anio : 1970,
+  autor : "Stephen",
+  genero : ["Horror", "Ficcion"],
+  disponible : true
+},
+{
+  id : 10,
+  titulo : "IT (ESO)",
+  anio : 1906,
+  autor : "King",
+  genero : ["Horror", "Ficcion"],
+  disponible : false
+}
+)]
 
+
+------ ACTUALIZAR
+db.libreria.libros.updateOne (
+  { id : 10 },
+  {  $set : { disponible : true  }}
+)
+
+------ MOSTRAR TODOS
+db.libreria.libros.find()
+
+------ LIBROS DE UN AUTOR ESPECIFICO
+db.libreria.libros.find ({
+  autor : "Dross"
+})
