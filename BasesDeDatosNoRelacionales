@@ -1,0 +1,39 @@
+--Estructura
+
+libreria.liros {
+id : 0,
+titulo : "nombre_libro",
+anio : 0000,
+autor : "nombre_autor",
+genero : [ "generoPrincipal"], ["generoSecundario"],
+disponible : true
+}
+
+libreria.autores {
+id : 0,
+nombre : "nombre_autor",
+apellido : "apellido_autor",
+edad : 00,
+localidad : "nombre_localidad"
+}
+
+
+libreria.libros.insertMany ([
+{
+id : 1,
+titulo : "Luna de Pluton",
+anio : 2010,
+autor : "Dross",
+genero : ["Horror", "Drama"],
+disponible : true
+},
+{
+id : 2,
+titulo : "El Eternauta",
+anio : 1999,
+autor : "Pepe",
+genero : ["Ciencia Ficcion", "Horror"],
+disponible : false
+},
+{
+
