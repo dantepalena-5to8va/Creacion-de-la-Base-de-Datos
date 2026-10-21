@@ -4,16 +4,31 @@ db.movies.find ({ year : 1914})
 2 - Películas cuya duración sea exactamente 199 minutos.
 db.movies.find ({ runtime : 199)}
 
-3 - Películas que esten en ingle
+4 - Películas que esten en ingles
 db.movies.find ({ languages : "English"})
 
-4 - Películas yankees
+5 - Películas yankees
 db.movies.find ({ countries : "USA"})
 
-5 - Películas que de mas de 2 horas
+6 - Películas que de mas de 2 horas
 db.movies.find ({ runtime : {$gt : 120}})
 
-6 - Películas de este siglo
+7 - Películas de este siglo
 db.movies.find ({ year : {$gte : 2000}})
 
-7 - 
+8 - Películas cuya puntuación de IMDb sea de almenos 4 estrellas
+db.movies.find ({"imdb.rating" : {$gte : 4}})
+
+9 - Películas de despues del 2010 y mostrar únicamente título y año
+db.movies.find ({year : {$gt : 2010}, title : 1, year : 1})
+
+10 - Películas que duren menos de 90 minutos
+db.movies.find ({ runtime : {$lt : 90}})
+
+11 -  Películas en blanco y negro.
+
+
+12 - Películas malas
+db.movies.find ({"imdb.rating" : {$lte : 4}})
+
+13 - Comedias de menos de dos horas
