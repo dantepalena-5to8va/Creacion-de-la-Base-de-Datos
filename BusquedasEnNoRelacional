@@ -1,0 +1,19 @@
+1 - Películas estrenadas en 1914
+db.movies.find ({ year : 1914})
+
+2 - Películas cuya duración sea exactamente 199 minutos.
+db.movies.find ({ runtime : 199)}
+
+3 - Películas que esten en ingle
+db.movies.find ({ languages : "English"})
+
+4 - Películas yankees
+db.movies.find ({ countries : "USA"})
+
+5 - Películas que de mas de 2 horas
+db.movies.find ({ runtime : {$gt : 120}})
+
+6 - Películas de este siglo
+db.movies.find ({ year : {$gte : 2000}})
+
+7 - 
