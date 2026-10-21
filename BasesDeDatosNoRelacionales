@@ -108,6 +108,11 @@ db.libreria.libros.updateOne (
   {  $set : { disponible : true  }}
 )
 
+------ ELIMINAR UNO
+db.libreria.libros(
+  { id : 6}
+)
+
 ------ MOSTRAR TODOS
 db.libreria.libros.find()
 
