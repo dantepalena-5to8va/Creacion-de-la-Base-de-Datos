@@ -26,9 +26,60 @@ db.movies.find ({year : {$gt : 2010}, title : 1, year : 1})
 db.movies.find ({ runtime : {$lt : 90}})
 
 11 -  Películas en blanco y negro.
-
+db.movies.find ({fullplot : {$regex : "black and white"}})
 
 12 - Películas malas
 db.movies.find ({"imdb.rating" : {$lte : 4}})
 
 13 - Comedias de menos de dos horas
+db.movies.find ({genres : "Comedy", runtime : {$lte : 120}})
+
+14 - Películas de género "Action" o "Drama"
+db.movies.find ({genres : {$in : ["Action", "Drama"]}})
+
+15 - Películas estrenadas el primer año de cada decada (desde el 2000)
+
+16 - Películas de Estados Unidos o Reino Unido
+db.movies.find ({countries : {$in : ["USA", "UK"]}})
+
+17 - Películas cuyo idioma no sea "English"
+db.movies.find ({languages : {$nin : ["English"]}})
+
+18 - Películas que no sean de gringas
+db.movies.find ({countries : {$nin : ["USA"]}})
+
+19 - Películas que no hayan sido dirigidas por "Louis J. Gasnier" ni "Donald MacKenzie"
+db.movies.find ({directors : {$nin : ["Louis J. Gasnier", "Donald MacKenzie"]}})
+
+20 - Películas en las que aparezca "Pearl White"
+db.movies.find ({cast : {$in : ["Pearl White"]}})
+
+21 - Películas dirigidas por "Louis J. Gasnier"
+db.movies.find ({directors : {$in : ["Louis J. Gasnier"]}})
+
+22 - Títulos que contengan "love"}
+db.movies.find ({title : {$regex : "love"}})
+
+23 - Títulos empiecen con "the"
+db.movies.find ({title : {$regex : "^The"}})
+
+24 - Descripciones que contengan "money"
+db.movies.find ({plot : {$regex : "money"}})
+
+25 - Títulos que terminen en "man" (mostrar titulo, genero, año de estreno y director)
+db.movies.find ({title : {$regex : "money"}, title : 1, genres : 1, yer : 1, directors : 1})
+
+26 -  Nombres de directores que comiencen con "Louis"
+db.movies.find ({directors : {$regex : "^Louis"}})
+
+27 - Peliculas de javier el alfarero (mostrar solo titulo y año de estreno)
+db.movies.find ({ directors: "Javier El Alfarero", title : 1, year : 1})
+
+28 - Películas posteriores a 2000 y de más de 120 minutos
+db.movies.find ({year : {$gt : 2000}, runtime : {$gt : 120}})
+
+29 - Películas anteriores a 1950 y del género "Action"
+db.movies.find ({year : {$lt : 1950}, genres : "Action"})
+
+30 - Películas con IMDb mayor a 7 y duración menor a 120 minutos
+db.movies.find ({"imdb.rating" : {$gt : 7}, runtime : {$lt : 120}})
